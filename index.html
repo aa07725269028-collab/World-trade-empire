@@ -5,10 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 إمبراطورية التجارة العالمية - Global Trade Empire</title>
     
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
@@ -50,22 +46,51 @@
 </head>
 <body class="font-sans">
     
-    <script>
-        // 🔥 تم إضافة إعدادات Firebase هنا (يجب عليك استبدال هذه القيم بقيم مشروعك الحقيقية)
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { 
+            getAuth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // إعدادات مشروعك
         const firebaseConfig = {
-            apiKey: "AIzaSyC07kS4zB6D4wJ1R9h8T7Y6X5V4U3S2Q1P0O", // مثال لمفتاح API
-            authDomain: "global-trade-empire-3000.firebaseapp.com",
-            projectId: "global-trade-empire-3000",
-            storageBucket: "global-trade-empire-3000.appspot.com",
-            messagingSenderId: "123456789012",
-            appId: "1:123456789012:web:a0b1c2d3e4f5g6h7i8j9k0"
+            apiKey: "AIzaSyBZzREQP9SiTClmZtlN4bdh1buM3zfcJAw",
+            authDomain: "global-trade-empire-c4d98.firebaseapp.com",
+            projectId: "global-trade-empire-c4d98",
+            storageBucket: "global-trade-empire-c4d98.firebasestorage.app",
+            messagingSenderId: "43498167064",
+            appId: "1:43498167064:web:14e72ac40cd0e7a4e49c6d"
         };
+
+        // تشغيل Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // خزنها كي نستخدمها لاحقاً في الدوال العامة
+        window.simpleFirebase = { 
+            app, 
+            db, 
+            auth, 
+            createUserWithEmailAndPassword, 
+            signInWithEmailAndPassword, 
+            onAuthStateChanged 
+        };
+        console.log('✅ تم إعداد Firebase بنجاح');
         
-        // Initialize Firebase (تم تهيئة Firebase الآن باستخدام القيم الافتراضية)
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        console.log("🔥 تم تهيئة Firebase! يمكنك الآن استخدام المتغيرين db و auth.");
+        // تلقائياً تحقق من المستخدم عند تحميل الصفحة
+        window.simpleFirebase.onAuthStateChanged(window.simpleFirebase.auth, (user) => {
+            if (user) {
+                document.getElementById('user-status').textContent = `مرحباً ${user.email}`;
+                console.log('👤 مستخدم مسجل:', user.email);
+            } else {
+                document.getElementById('user-status').textContent = 'لم يتم تسجيل الدخول';
+            }
+        });
     </script>
 
     <nav class="glass-card fixed top-0 left-0 right-0 z-50 p-4 mx-4 mt-2">
@@ -86,8 +111,22 @@
             </div>
         </div>
     </nav>
+    
+    <div id="login-bar" class="glass-card p-4 mx-4 mb-4 mt-20">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <h3 class="font-bold">👤 نظام المستخدمين</h3>
+                <p class="text-sm text-gray-400" id="user-status">لم يتم تسجيل الدخول</p>
+            </div>
+            <div class="flex space-x-2 space-x-reverse">
+                <button onclick="showRegister()" class="px-4 py-2 bg-green-600 rounded hover:bg-green-700">إنشاء حساب</button>
+                <button onclick="showLogin()" class="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700">تسجيل دخول</button>
+                <button onclick="logoutUser()" class="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700">خروج</button>
+            </div>
+        </div>
+    </div>
 
-    <div class="container mx-auto px-4 pt-24 pb-8">
+    <div class="container mx-auto px-4 pb-8">
         
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="glass-card p-6">
@@ -340,6 +379,61 @@
     </footer>
 
     <script>
+        // نظام تسجيل الدخول البسيط
+        async function showRegister() {
+            if (!window.simpleFirebase) return alert('⚠️ نظام Firebase غير جاهز بعد.');
+            const email = prompt('أدخل بريدك الإلكتروني:');
+            const password = prompt('أدخل كلمة المرور (6 أحرف على الأقل):');
+            
+            if (email && password && password.length >= 6) {
+                try {
+                    const userCredential = await window.simpleFirebase.createUserWithEmailAndPassword(
+                        window.simpleFirebase.auth, 
+                        email, 
+                        password
+                    );
+                    alert('🎉 تم إنشاء حسابك بنجاح!');
+                    // onAuthStateChanged سيتولى تحديث حالة المستخدم
+                } catch (error) {
+                    alert('⚠️ خطأ: ' + error.message);
+                    console.error('Registration Error:', error);
+                }
+            }
+        }
+
+        async function showLogin() {
+            if (!window.simpleFirebase) return alert('⚠️ نظام Firebase غير جاهز بعد.');
+            const email = prompt('أدخل بريدك الإلكتروني:');
+            const password = prompt('أدخل كلمة المرور:');
+            
+            if (email && password) {
+                try {
+                    const userCredential = await window.simpleFirebase.signInWithEmailAndPassword(
+                        window.simpleFirebase.auth, 
+                        email, 
+                        password
+                    );
+                    alert('✅ تم تسجيل الدخول بنجاح!');
+                    // onAuthStateChanged سيتولى تحديث حالة المستخدم
+                } catch (error) {
+                    alert('⚠️ خطأ: ' + error.message);
+                    console.error('Login Error:', error);
+                }
+            }
+        }
+
+        async function logoutUser() {
+            if (!window.simpleFirebase) return alert('⚠️ نظام Firebase غير جاهز بعد.');
+            try {
+                await window.simpleFirebase.auth.signOut();
+                alert('تم تسجيل الخروج');
+                // onAuthStateChanged سيتولى تحديث حالة المستخدم
+            } catch (error) {
+                alert('⚠️ خطأ في تسجيل الخروج: ' + error.message);
+                console.error('Logout Error:', error);
+            }
+        }
+        
         // Global Trade Empire System
         class GlobalTradeEmpire {
             constructor() {
@@ -356,17 +450,9 @@
             
             init() {
                 console.log('🚀 إمبراطورية التجارة العالمية تعمل الآن!');
-                
-                // Initialize all bots
                 this.initializeBots();
-                
-                // Start auto profit updates
                 this.startAutoTrading();
-                
-                // Generate initial transactions
                 this.generateTransactions();
-                
-                // Initialize Firebase (replaced by global scope initialization)
                 this.initDataLayer();
             }
             
@@ -388,13 +474,11 @@
             }
             
             startAutoTrading() {
-                // Auto profit generation every 5 seconds
                 setInterval(() => {
                     this.generateProfit();
                     this.updateUI();
                 }, 5000);
                 
-                // Auto transactions every 10 seconds
                 setInterval(() => {
                     this.addLiveTransaction();
                 }, 10000);
@@ -403,7 +487,6 @@
             generateProfit() {
                 let newProfit = 0;
                 
-                // Calculate profit from active bots
                 Object.values(this.bots).forEach(bot => {
                     if (bot.active && bot.profit > 0) {
                         const randomIncrease = Math.floor(Math.random() * 15) + 5;
@@ -468,15 +551,12 @@
                     <div class="text-green-400 font-bold text-xl">+$${amount}</div>
                 `;
                 
-                // Add to beginning
                 transactionsContainer.insertBefore(div, transactionsContainer.firstChild);
                 
-                // Limit to 10 transactions
                 if (transactionsContainer.children.length > 10) {
                     transactionsContainer.removeChild(transactionsContainer.lastChild);
                 }
                 
-                // Add to profits
                 this.dailyProfit += amount;
                 this.totalProfit += amount;
                 this.walletBalance += amount;
@@ -532,10 +612,7 @@
                 if (this.walletBalance >= withdrawAmount) {
                     this.walletBalance -= withdrawAmount;
                     this.updateUI();
-                    
-                    // Add withdrawal transaction
                     this.addTransaction('سحب أرباح', -withdrawAmount, 'سحب');
-                    
                     alert(`✅ تم سحب $${withdrawAmount} بنجاح!\nالرصيد الجديد: $${this.walletBalance.toLocaleString()}`);
                 } else {
                     alert('⚠️ الرصيد غير كافي للسحب');
@@ -547,13 +624,8 @@
                 if (this.walletBalance >= investAmount) {
                     this.walletBalance -= investAmount;
                     this.updateUI();
-                    
-                    // Add investment transaction
                     this.addTransaction('إعادة استثمار', -investAmount, 'استثمار');
-                    
-                    // Increase profit rate
                     this.successRate = Math.min(99.9, this.successRate + 0.5);
-                    
                     alert(`✅ تم إعادة استثمار $${investAmount}!\nمعدل النجاح الجديد: ${this.successRate}%`);
                 } else {
                     alert('⚠️ الرصيد غير كافي للاستثمار');
@@ -584,19 +656,11 @@
             }
             
             initDataLayer() {
-                // Check if Firebase is available (it should be, since it's initialized globally)
-                if (typeof firebase !== 'undefined') {
-                    console.log('🔗 جاهز للاتصال بـ Firestore!');
-                    // هنا يمكن إضافة منطق قراءة/كتابة البيانات من Firestore بدلاً من localStorage
-                    // مثال: db.collection("stats").doc("overview").onSnapshot(...)
-                } else {
-                    console.log('⚠️ Firebase غير متاح، استخدام localStorage بدلاً منه.');
-                    this.loadFromStorage();
-                }
+                // Logic to load/save data (e.g., from Firestore using window.simpleFirebase.db)
+                this.loadFromStorage();
             }
             
             saveToStorage() {
-                // حفظ البيانات مؤقتاً في localStorage إذا لم يتم استخدام قاعدة بيانات حقيقية
                 const data = {
                     totalProfit: this.totalProfit,
                     dailyProfit: this.dailyProfit,
@@ -630,12 +694,11 @@
             }
         }
         
-        // Global Functions
+        // Global Functions (Global functions call class methods)
         function changeLanguage(lang) {
             const empire = window.globalTradeEmpire;
             empire.language = lang;
             
-            // Update button styles
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.classList.remove('bg-blue-600');
                 btn.classList.add('bg-gray-700');
@@ -644,7 +707,6 @@
             event.target.classList.remove('bg-gray-700');
             event.target.classList.add('bg-blue-600');
             
-            // In a real app, we would update all text translations here
             alert(`🌍 تم التغيير إلى ${lang === 'ar' ? 'العربية' : 'الإنجليزية'}`);
         }
         
@@ -686,7 +748,6 @@
                 window.globalTradeEmpire.saveToStorage();
             }, 30000);
             
-            // Show welcome message
             setTimeout(() => {
                 console.log('🌟 النظام جاهز تماماً!');
             }, 1000);
