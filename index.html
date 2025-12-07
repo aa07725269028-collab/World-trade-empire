@@ -5,6 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 إمبراطورية التجارة العالمية - Global Trade Empire</title>
     
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
@@ -46,57 +52,27 @@
 </head>
 <body class="font-sans">
     
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        // استيراد الدوال المطلوبة من Firestore
-        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-        import { 
-            getAuth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword, 
-            onAuthStateChanged,
-            signOut
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-
-        // إعدادات مشروعك
+    <!-- Firebase Configuration -->
+    <script>
+        // 🔥 Firebase Configuration - سأضيفها لاحقاً
         const firebaseConfig = {
-            apiKey: "AIzaSyBZzREQP9SiTClmZtlN4bdh1buM3zfcJAw",
-            authDomain: "global-trade-empire-c4d98.firebaseapp.com",
-            projectId: "global-trade-empire-c4d98",
-            storageBucket: "global-trade-empire-c4d98.firebasestorage.app",
-            messagingSenderId: "43498167064",
-            appId: "1:43498167064:web:14e72ac40cd0e7a4e49c6d"
+            apiKey: "YOUR_API_KEY_HERE",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
-
-        // تشغيل Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-
-        // خزنها كي نستخدمها لاحقاً في الدوال العامة
-        window.simpleFirebase = { 
-            app, 
-            db, 
-            auth, 
-            createUserWithEmailAndPassword, 
-            signInWithEmailAndPassword, 
-            onAuthStateChanged,
-            signOut,
-            doc, getDoc, setDoc // دوال Firestore الضرورية
-        };
-        console.log('✅ تم إعداد Firebase بنجاح');
         
-        // تلقائياً تحقق من المستخدم عند تحميل الصفحة
-        window.simpleFirebase.onAuthStateChanged(window.simpleFirebase.auth, (user) => {
-            if (user) {
-                document.getElementById('user-status').textContent = `مرحباً ${user.email}`;
-                console.log('👤 مستخدم مسجل:', user.email);
-            } else {
-                document.getElementById('user-status').textContent = 'لم يتم تسجيل الدخول';
-            }
-        });
+        // Initialize Firebase (إذا كان config موجوداً)
+        if (firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+            const auth = firebase.auth();
+        }
     </script>
 
+    <!-- Navigation -->
     <nav class="glass-card fixed top-0 left-0 right-0 z-50 p-4 mx-4 mt-2">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
@@ -115,24 +91,13 @@
             </div>
         </div>
     </nav>
-    
-    <div id="login-bar" class="glass-card p-4 mx-4 mb-4 mt-20">
-        <div class="container mx-auto flex justify-between items-center">
-            <div>
-                <h3 class="font-bold">👤 نظام المستخدمين</h3>
-                <p class="text-sm text-gray-400" id="user-status">لم يتم تسجيل الدخول</p>
-            </div>
-            <div class="flex space-x-2 space-x-reverse">
-                <button onclick="showRegister()" class="px-4 py-2 bg-green-600 rounded hover:bg-green-700">إنشاء حساب</button>
-                <button onclick="showLogin()" class="px-4 py-2 bg-blue-600 rounded hover:bg-blue-700">تسجيل دخول</button>
-                <button onclick="logoutUser()" class="px-4 py-2 bg-gray-600 rounded hover:bg-gray-700">خروج</button>
-            </div>
-        </div>
-    </div>
 
-    <div class="container mx-auto px-4 pb-8">
+    <!-- Main Dashboard -->
+    <div class="container mx-auto px-4 pt-24 pb-8">
         
+        <!-- Stats Overview -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Total Profit -->
             <div class="glass-card p-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -147,6 +112,7 @@
                 </div>
             </div>
             
+            <!-- Active Bots -->
             <div class="glass-card p-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -158,6 +124,7 @@
                 <div class="mt-4 text-blue-400">⚡ جميع الأنظمة تعمل</div>
             </div>
             
+            <!-- Success Rate -->
             <div class="glass-card p-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -169,6 +136,7 @@
                 <div class="mt-4 text-yellow-400">⭐ أداء استثنائي</div>
             </div>
             
+            <!-- Daily Profit -->
             <div class="glass-card p-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -181,6 +149,7 @@
             </div>
         </div>
         
+        <!-- Advanced Trading Bots -->
         <div class="glass-card p-6 mb-8">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">🤖 الروبوتات المتقدمة</h2>
@@ -188,6 +157,7 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <!-- Trading Bot -->
                 <div id="bot-trading" class="glass-card p-4 robot-active">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-xl">📈</div>
@@ -211,6 +181,7 @@
                     </div>
                 </div>
                 
+                <!-- E-commerce Bot -->
                 <div id="bot-ecommerce" class="glass-card p-4 robot-active">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center text-xl">🛒</div>
@@ -234,6 +205,7 @@
                     </div>
                 </div>
                 
+                <!-- Affiliate Bot -->
                 <div id="bot-affiliate" class="glass-card p-4 robot-active">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-xl">👥</div>
@@ -257,6 +229,7 @@
                     </div>
                 </div>
                 
+                <!-- Crypto Bot -->
                 <div id="bot-crypto" class="glass-card p-4 robot-active">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center text-xl">₿</div>
@@ -282,7 +255,9 @@
             </div>
         </div>
         
+        <!-- Income Sources & Wallet -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Income Sources -->
             <div class="glass-card p-6 lg:col-span-2">
                 <h2 class="text-2xl font-bold mb-6">💰 مصادر الدخل المتعددة</h2>
                 
@@ -332,6 +307,7 @@
                 </div>
             </div>
             
+            <!-- Digital Wallet -->
             <div class="glass-card p-6">
                 <h2 class="text-2xl font-bold mb-6">💼 المحفظة الرقمية</h2>
                 
@@ -367,14 +343,17 @@
             </div>
         </div>
         
+        <!-- Real-time Transactions -->
         <div class="glass-card p-6">
             <h2 class="text-2xl font-bold mb-6">⚡ المعاملات الحية</h2>
             
             <div id="live-transactions" class="space-y-3 max-h-96 overflow-y-auto">
-                </div>
+                <!-- Transactions will be added here by JavaScript -->
+            </div>
         </div>
     </div>
 
+    <!-- Footer -->
     <footer class="glass-card mx-4 mb-4 p-6 text-center text-gray-400">
         <p class="text-lg">🚀 إمبراطورية التجارة العالمية - نظام ذكي متكامل</p>
         <p class="mt-2">⚡ يعمل على GitHub + Netlify + Firebase</p>
@@ -382,60 +361,8 @@
         <p class="mt-2 text-sm">© 2024 - جميع الأنظمة تعمل تلقائياً 24/7</p>
     </footer>
 
+    <!-- JavaScript Application -->
     <script>
-        // نظام تسجيل الدخول البسيط
-        async function showRegister() {
-            if (!window.simpleFirebase) return alert('⚠️ نظام Firebase غير جاهز بعد.');
-            const email = prompt('أدخل بريدك الإلكتروني:');
-            const password = prompt('أدخل كلمة المرور (6 أحرف على الأقل):');
-            
-            if (email && password && password.length >= 6) {
-                try {
-                    await window.simpleFirebase.createUserWithEmailAndPassword(
-                        window.simpleFirebase.auth, 
-                        email, 
-                        password
-                    );
-                    alert('🎉 تم إنشاء حسابك بنجاح!');
-                } catch (error) {
-                    alert('⚠️ خطأ: ' + error.message);
-                    console.error('Registration Error:', error);
-                }
-            }
-        }
-
-        async function showLogin() {
-            if (!window.simpleFirebase) return alert('⚠️ نظام Firebase غير جاهز بعد.');
-            const email = prompt('أدخل بريدك الإلكتروني:');
-            const password = prompt('أدخل كلمة المرور:');
-            
-            if (email && password) {
-                try {
-                    await window.simpleFirebase.signInWithEmailAndPassword(
-                        window.simpleFirebase.auth, 
-                        email, 
-                        password
-                    );
-                    alert('✅ تم تسجيل الدخول بنجاح!');
-                } catch (error) {
-                    alert('⚠️ خطأ: ' + error.message);
-                    console.error('Login Error:', error);
-                }
-            }
-        }
-
-        async function logoutUser() {
-            if (!window.simpleFirebase) return alert('⚠️ نظام Firebase غير جاهز بعد.');
-            try {
-                // استخدام دالة signOut المستوردة
-                await window.simpleFirebase.signOut(window.simpleFirebase.auth);
-                alert('تم تسجيل الخروج');
-            } catch (error) {
-                alert('⚠️ خطأ في تسجيل الخروج: ' + error.message);
-                console.error('Logout Error:', error);
-            }
-        }
-        
         // Global Trade Empire System
         class GlobalTradeEmpire {
             constructor() {
@@ -452,71 +379,20 @@
             
             init() {
                 console.log('🚀 إمبراطورية التجارة العالمية تعمل الآن!');
-                this.initializeBots();
-                this.startAutoTrading();
-                this.generateTransactions();
-                // 💡 الآن تبدأ محاولة جلب البيانات من Firestore
-                this.initDataLayer();
-            }
-            
-            // 🆕 الدالة الجديدة: جلب البيانات من Firestore
-            async initDataLayer() {
-                if (window.simpleFirebase && window.simpleFirebase.db) {
-                    const { db, doc, getDoc } = window.simpleFirebase;
-                    try {
-                        // تحديد مسار المستند: المجموعة 'stats' والمستند 'summary'
-                        const docRef = doc(db, "stats", "summary");
-                        const docSnap = await getDoc(docRef); 
-                        
-                        if (docSnap.exists()) {
-                            const data = docSnap.data();
-                            // تحديث قيم الكلاس بناءً على بيانات Firestore
-                            this.totalProfit = data.totalProfit || this.totalProfit;
-                            this.dailyProfit = data.dailyProfit || this.dailyProfit;
-                            this.walletBalance = data.walletBalance || this.walletBalance;
-                            this.successRate = data.successRate || this.successRate;
-                            
-                            this.updateUI();
-                            console.log("✅ تم تحميل البيانات الأولية من Firestore!");
-                        } else {
-                            console.log("⚠️ مستند 'stats/summary' غير موجود. استخدام القيم الافتراضية.");
-                        }
-                    } catch (error) {
-                        console.error("خطأ في جلب البيانات من Firestore، استخدام النسخة المحلية:", error);
-                        this.loadFromStorage();
-                    }
-                } else {
-                    this.loadFromStorage();
-                }
-            }
-            
-            // 🆕 الدالة الجديدة: حفظ البيانات في Firestore (مع نسخة احتياطية محلية)
-            async saveData() {
-                const dataToSave = {
-                    totalProfit: this.totalProfit,
-                    dailyProfit: this.dailyProfit,
-                    walletBalance: this.walletBalance,
-                    successRate: this.successRate,
-                    lastUpdated: Date.now()
-                };
-
-                if (window.simpleFirebase && window.simpleFirebase.db) {
-                    const { db, doc, setDoc } = window.simpleFirebase;
-                    try {
-                        const docRef = doc(db, "stats", "summary");
-                        // استخدام setDoc مع { merge: true } لتحديث الحقول فقط
-                        await setDoc(docRef, dataToSave, { merge: true });
-                        console.log("💾 تم حفظ البيانات في Firestore.");
-                    } catch (error) {
-                        console.error("خطأ في حفظ البيانات في Firestore:", error);
-                    }
-                }
                 
-                // حفظ نسخة احتياطية محلية
-                localStorage.setItem('globalTradeEmpire', JSON.stringify(dataToSave));
+                // Initialize all bots
+                this.initializeBots();
+                
+                // Start auto profit updates
+                this.startAutoTrading();
+                
+                // Generate initial transactions
+                this.generateTransactions();
+                
+                // Initialize Firebase if available
+                this.initFirebase();
             }
             
-            // الدوال المتبقية...
             initializeBots() {
                 this.bots = {
                     trading: { active: true, profit: 324, type: 'تداول' },
@@ -535,11 +411,13 @@
             }
             
             startAutoTrading() {
+                // Auto profit generation every 5 seconds
                 setInterval(() => {
                     this.generateProfit();
                     this.updateUI();
                 }, 5000);
                 
+                // Auto transactions every 10 seconds
                 setInterval(() => {
                     this.addLiveTransaction();
                 }, 10000);
@@ -548,6 +426,7 @@
             generateProfit() {
                 let newProfit = 0;
                 
+                // Calculate profit from active bots
                 Object.values(this.bots).forEach(bot => {
                     if (bot.active && bot.profit > 0) {
                         const randomIncrease = Math.floor(Math.random() * 15) + 5;
@@ -612,12 +491,15 @@
                     <div class="text-green-400 font-bold text-xl">+$${amount}</div>
                 `;
                 
+                // Add to beginning
                 transactionsContainer.insertBefore(div, transactionsContainer.firstChild);
                 
+                // Limit to 10 transactions
                 if (transactionsContainer.children.length > 10) {
                     transactionsContainer.removeChild(transactionsContainer.lastChild);
                 }
                 
+                // Add to profits
                 this.dailyProfit += amount;
                 this.totalProfit += amount;
                 this.walletBalance += amount;
@@ -673,9 +555,11 @@
                 if (this.walletBalance >= withdrawAmount) {
                     this.walletBalance -= withdrawAmount;
                     this.updateUI();
+                    
+                    // Add withdrawal transaction
                     this.addTransaction('سحب أرباح', -withdrawAmount, 'سحب');
-                    alert(`✅ تم سحب $${withdrawAmount} بنجاح!\nالرصيد الجديد: $${this.walletBalance.toLocaleString()}`);
-                    this.saveData(); // حفظ التغيير في الرصيد
+                    
+                    alert(`✅ تم سحب $${withdrawAmount} بنجاح!\nالرصيد الجديد: $${this.walletBalance}`);
                 } else {
                     alert('⚠️ الرصيد غير كافي للسحب');
                 }
@@ -686,10 +570,14 @@
                 if (this.walletBalance >= investAmount) {
                     this.walletBalance -= investAmount;
                     this.updateUI();
+                    
+                    // Add investment transaction
                     this.addTransaction('إعادة استثمار', -investAmount, 'استثمار');
+                    
+                    // Increase profit rate
                     this.successRate = Math.min(99.9, this.successRate + 0.5);
+                    
                     alert(`✅ تم إعادة استثمار $${investAmount}!\nمعدل النجاح الجديد: ${this.successRate}%`);
-                    this.saveData(); // حفظ التغيير في الرصيد ومعدل النجاح
                 } else {
                     alert('⚠️ الرصيد غير كافي للاستثمار');
                 }
@@ -707,7 +595,7 @@
                         <div class="text-sm text-gray-400">${category} • الآن</div>
                     </div>
                     <div class="${isPositive ? 'text-green-400' : 'text-red-400'} font-bold text-xl">
-                        ${isPositive ? '+' : ''}$${Math.abs(amount).toLocaleString()}
+                        ${isPositive ? '+' : ''}$${Math.abs(amount)}
                     </div>
                 `;
                 
@@ -718,6 +606,22 @@
                 }
             }
             
+            initFirebase() {
+                // This would initialize Firebase connection
+                // For now, we'll use localStorage as fallback
+                this.loadFromStorage();
+            }
+            
+            saveToStorage() {
+                const data = {
+                    totalProfit: this.totalProfit,
+                    dailyProfit: this.dailyProfit,
+                    walletBalance: this.walletBalance,
+                    bots: this.bots
+                };
+                localStorage.setItem('globalTradeEmpire', JSON.stringify(data));
+            }
+            
             loadFromStorage() {
                 const saved = localStorage.getItem('globalTradeEmpire');
                 if (saved) {
@@ -726,7 +630,6 @@
                     this.dailyProfit = data.dailyProfit || this.dailyProfit;
                     this.walletBalance = data.walletBalance || this.walletBalance;
                     this.bots = data.bots || this.bots;
-                    this.successRate = data.successRate || this.successRate;
                     this.updateUI();
                 }
             }
@@ -741,11 +644,12 @@
             }
         }
         
-        // Global Functions (Global functions call class methods)
+        // Global Functions
         function changeLanguage(lang) {
             const empire = window.globalTradeEmpire;
             empire.language = lang;
             
+            // Update button styles
             document.querySelectorAll('nav button').forEach(btn => {
                 btn.classList.remove('bg-blue-600');
                 btn.classList.add('bg-gray-700');
@@ -754,6 +658,7 @@
             event.target.classList.remove('bg-gray-700');
             event.target.classList.add('bg-blue-600');
             
+            // In a real app, we would update all text translations here
             alert(`🌍 تم التغيير إلى ${lang === 'ar' ? 'العربية' : 'الإنجليزية'}`);
         }
         
@@ -790,11 +695,12 @@
         window.onload = function() {
             window.globalTradeEmpire = new GlobalTradeEmpire();
             
-            // 💡 الآن يتم حفظ البيانات في Firestore كل 30 ثانية
+            // Auto-save every 30 seconds
             setInterval(() => {
-                window.globalTradeEmpire.saveData(); 
+                window.globalTradeEmpire.saveToStorage();
             }, 30000);
             
+            // Show welcome message
             setTimeout(() => {
                 console.log('🌟 النظام جاهز تماماً!');
             }, 1000);
