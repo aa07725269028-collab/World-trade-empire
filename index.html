@@ -151,7 +151,7 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="bots-container">
-                <div id="bot-trading" class="glass-card p-4 robot-active">
+                <div id="bot-trading" class="glass-card p-4">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-xl">📈</div>
                         <div class="mr-3">
@@ -169,12 +169,12 @@
                         </div>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-sm text-gray-400 status-indicator">🟢 نشط</span>
-                        <button onclick="toggleBot('trading')" class="text-sm bg-red-500 hover:bg-red-600 px-3 py-1 rounded bot-toggle-btn">إيقاف</button>
+                        <span class="text-sm text-gray-400 status-indicator">🔴 متوقف</span>
+                        <button onclick="toggleBot('trading')" class="text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn">تشغيل</button>
                     </div>
                 </div>
                 
-                <div id="bot-ecommerce" class="glass-card p-4 robot-active">
+                <div id="bot-ecommerce" class="glass-card p-4">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center text-xl">🛒</div>
                         <div class="mr-3">
@@ -192,12 +192,12 @@
                         </div>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-sm text-gray-400 status-indicator">🟢 نشط</span>
-                        <button onclick="toggleBot('ecommerce')" class="text-sm bg-red-500 hover:bg-red-600 px-3 py-1 rounded bot-toggle-btn">إيقاف</button>
+                        <span class="text-sm text-gray-400 status-indicator">🔴 متوقف</span>
+                        <button onclick="toggleBot('ecommerce')" class="text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn">تشغيل</button>
                     </div>
                 </div>
                 
-                <div id="bot-affiliate" class="glass-card p-4 robot-active">
+                <div id="bot-affiliate" class="glass-card p-4">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-xl">👥</div>
                         <div class="mr-3">
@@ -215,12 +215,12 @@
                         </div>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-sm text-gray-400 status-indicator">🟢 نشط</span>
-                        <button onclick="toggleBot('affiliate')" class="text-sm bg-red-500 hover:bg-red-600 px-3 py-1 rounded bot-toggle-btn">إيقاف</button>
+                        <span class="text-sm text-gray-400 status-indicator">🔴 متوقف</span>
+                        <button onclick="toggleBot('affiliate')" class="text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn">تشغيل</button>
                     </div>
                 </div>
                 
-                <div id="bot-crypto" class="glass-card p-4 robot-active">
+                <div id="bot-crypto" class="glass-card p-4">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center text-xl">₿</div>
                         <div class="mr-3">
@@ -238,8 +238,8 @@
                         </div>
                     </div>
                     <div class="flex justify-between">
-                        <span class="text-sm text-gray-400 status-indicator">🟢 نشط</span>
-                        <button onclick="toggleBot('crypto')" class="text-sm bg-red-500 hover:bg-red-600 px-3 py-1 rounded bot-toggle-btn">إيقاف</button>
+                        <span class="text-sm text-gray-400 status-indicator">🔴 متوقف</span>
+                        <button onclick="toggleBot('crypto')" class="text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn">تشغيل</button>
                     </div>
                 </div>
             </div>
@@ -319,7 +319,7 @@
         // Global Trade Empire System
         class GlobalTradeEmpire {
             constructor() {
-                // القيم الأولية (سيتم استبدالها ببيانات Firebase لاحقاً)
+                // القيم الأولية (سيتم استبدالها ببيانات Firebase لحظياً)
                 this.totalProfit = 0;
                 this.dailyProfit = 0;
                 this.activeBots = 0;
@@ -334,51 +334,38 @@
             
             init() {
                 console.log('🚀 إمبراطورية التجارة العالمية تعمل الآن!');
-                
-                // نبدأ بربط Firebase مباشرة
                 this.initFirebase();
-                
-                // نوقف عمليات التوليد الوهمية القديمة مؤقتاً
-                // this.startAutoTrading(); 
             }
             
             // ==========================================================
-            // 🔥 أهم دالة: ربط Firebase والحصول على البيانات
+            // 🔥 أهم دالة: ربط Firebase والحصول على البيانات لحظياً (Listeners)
             // ==========================================================
             async initFirebase() {
                 if (!db) {
-                    // إذا لم يتم تهيئة Firebase (لأي سبب)
-                    console.error("Firebase DB غير متوفر. سيتم استخدام بيانات وهمية.");
-                    this.initializeDummyData();
-                    this.startAutoTrading();
+                    console.error("Firebase DB غير متوفر. تأكد من أن قواعد الأمان صحيحة.");
                     return;
                 }
                 
                 console.log("جارٍ محاولة الاتصال بقاعدة بيانات Firestore...");
                 
-                // 1. إحضار بيانات لوحة التحكم الرئيسية (Dashboard Stats)
+                // 1. الاستماع لبيانات لوحة التحكم الرئيسية (Dashboard Stats)
                 this.listenToDashboardStats();
 
-                // 2. إحضار بيانات الروبوتات
+                // 2. الاستماع لبيانات الروبوتات
                 this.listenToBots();
                 
-                // 3. إحضار بيانات مصادر الدخل
+                // 3. الاستماع لبيانات مصادر الدخل
                 this.listenToIncomeSources();
 
-                // 4. إحضار المعاملات
+                // 4. الاستماع للمعاملات الحية
                 this.listenToTransactions();
                 
-                // لكي تبدأ عملية تحديث الأرباح اللحظية على Firebase
+                // 5. بدء التحديث التلقائي للأرباح (يحاكي عملية التشغيل الآلي)
                 this.startFirebaseAutoUpdate();
             }
 
-            // ==========================================================
-            // الدوال الجديدة للاتصال بـ Firestore
-            // ==========================================================
-            
-            // الإحصائيات العامة (Dashboard Stats)
+            // الإحصائيات العامة (Dashboard Stats) - لحظي
             listenToDashboardStats() {
-                // افترض أن لديك مجموعة (Collection) اسمها 'dashboard' وداخلها مستند (Document) واحد اسمه 'stats'
                 db.collection('dashboard').doc('stats').onSnapshot(doc => {
                     if (doc.exists) {
                         const data = doc.data();
@@ -386,20 +373,18 @@
                         this.dailyProfit = data.dailyProfit || 0;
                         this.successRate = data.successRate || 0;
                         this.walletBalance = data.walletBalance || 0;
-                        this.updateUI();
+                        this.updateUI(); // تحديث الواجهة عند أي تغيير
                         console.log("🌟 تم تحديث الإحصائيات العامة لحظياً من Firebase.");
-                    } else {
-                        console.warn("❌ مستند إحصائيات لوحة التحكم مفقود (dashboard/stats).");
                     }
                 }, error => {
                     console.error("خطأ في قراءة إحصائيات لوحة التحكم:", error);
                 });
             }
 
-            // الروبوتات
+            // الروبوتات - لحظي
             listenToBots() {
-                // افترض أن لديك مجموعة (Collection) اسمها 'bots'
                 db.collection('bots').onSnapshot(snapshot => {
+                    this.bots = {}; // تفريغ البيانات القديمة
                     snapshot.docs.forEach(doc => {
                         const botId = doc.id;
                         const data = doc.data();
@@ -410,15 +395,16 @@
                         };
                         this.updateBotUI(botId);
                     });
+                    // حساب الروبوتات النشطة وتحديث الـ UI
                     this.activeBots = Object.values(this.bots).filter(b => b.active).length;
-                    this.updateUI(); // لتحديث عدد الروبوتات النشطة
+                    this.updateUI(); 
                     console.log("🤖 تم تحديث حالة الروبوتات لحظياً من Firebase.");
                 }, error => {
                     console.error("خطأ في قراءة الروبوتات:", error);
                 });
             }
             
-            // مصادر الدخل (لتحديث الجدول السفلي)
+            // مصادر الدخل - لحظي
             listenToIncomeSources() {
                 db.collection('incomeSources').orderBy('revenue', 'desc').onSnapshot(snapshot => {
                     this.incomeSources = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -429,13 +415,11 @@
                 });
             }
 
-            // المعاملات الحية
+            // المعاملات الحية - لحظي
             listenToTransactions() {
-                // افترض أن لديك مجموعة (Collection) اسمها 'transactions'
-                // نطلب آخر 10 معاملات ونرتبها حسب وقت الإنشاء
                 db.collection('transactions').orderBy('timestamp', 'desc').limit(10).onSnapshot(snapshot => {
                     const transactionsContainer = document.getElementById('live-transactions');
-                    transactionsContainer.innerHTML = ''; // تفريغ القديم
+                    transactionsContainer.innerHTML = ''; 
                     
                     snapshot.docs.forEach(doc => {
                         const transaction = doc.data();
@@ -448,47 +432,63 @@
             }
 
             // ==========================================================
-            // دوال التحكم
+            // دوال التحكم (تحديث Firebase)
             // ==========================================================
 
-            // تحديث حالة الروبوت في قاعدة البيانات
+            // تحديث حالة روبوت واحد
             async toggleBot(botId) {
                 if (!db || !this.bots[botId]) return;
 
                 const newStatus = !this.bots[botId].active;
                 
-                // تحديث حالة الروبوت في Firebase
                 await db.collection('bots').doc(botId).update({
                     active: newStatus
                 }).then(() => {
                     console.log(`✅ تم تحديث حالة الروبوت ${botId} إلى ${newStatus ? 'نشط' : 'متوقف'}.`);
                 }).catch(error => {
                     console.error(`❌ فشل تحديث حالة الروبوت ${botId}:`, error);
+                    alert('فشل في تحديث حالة الروبوت (تأكد من قواعد الأمان).');
                 });
-                
-                // يتم التحديث في UI تلقائياً عبر onSnapshot
             }
 
-            // بدء التحديث التلقائي للأرباح (يحتاج إلى Cloud Functions أو Cron Job في بيئة حقيقية)
-            // الآن، سنقوم بإنشاء وظيفة بسيطة لتحديث إجمالي الأرباح محلياً وزيادة يومية على Firebase لتبدأ العمل
+            // تحديث جميع الروبوتات
+            async toggleAllBots(forceStatus = null) {
+                if (!db) return;
+                
+                // تحديد الحالة المطلوبة: إذا لم يتم تحديدها، نعكس حالة الكل
+                const allActive = Object.values(this.bots).every(bot => bot.active);
+                const targetStatus = forceStatus !== null ? forceStatus : !allActive;
+                
+                const batch = db.batch();
+                Object.keys(this.bots).forEach(botId => {
+                    const botRef = db.collection('bots').doc(botId);
+                    batch.update(botRef, { active: targetStatus });
+                });
+                
+                await batch.commit().then(() => {
+                    console.log(`✅ تم تغيير حالة جميع الروبوتات إلى ${targetStatus ? 'نشط' : 'متوقف'}.`);
+                }).catch(error => {
+                    console.error("فشل تحديث حالة جميع الروبوتات:", error);
+                });
+            }
+
+
+            // تحديث الأرباح التلقائي (محاكاة)
             startFirebaseAutoUpdate() {
-                // تحديث كل 30 ثانية
                 setInterval(async () => {
                     if (!db) return;
 
-                    // 1. إضافة مبلغ عشوائي إلى رصيد المحفظة والأرباح الكلية
                     const profitIncrease = Math.floor(Math.random() * 50) + 10;
                     
                     try {
-                        // تحديث الإحصائيات في مستند 'stats'
+                        // تحديث الإحصائيات (باستخدام FieldValue.increment)
                         await db.collection('dashboard').doc('stats').update({
                             totalProfit: firebase.firestore.FieldValue.increment(profitIncrease),
                             dailyProfit: firebase.firestore.FieldValue.increment(profitIncrease),
                             walletBalance: firebase.firestore.FieldValue.increment(profitIncrease)
                         });
-                        console.log(`[Auto] تم إضافة $${profitIncrease} إلى الأرباح.`);
                         
-                        // 2. إضافة معاملة جديدة
+                        // إضافة معاملة جديدة
                         const types = ['تداول آلي', 'عمولة تجارية', 'ربح استثماري', 'بيع منتج', 'خدمة رقمية'];
                         const type = types[Math.floor(Math.random() * types.length)];
                         
@@ -502,7 +502,7 @@
                     } catch (e) {
                         console.error("فشل تحديث Firebase التلقائي:", e);
                     }
-                }, 30000); // 30 ثانية
+                }, 30000); // كل 30 ثانية
             }
 
             // ==========================================================
@@ -510,13 +510,14 @@
             // ==========================================================
 
             updateUI() {
+                // تحديث إحصائيات لوحة التحكم الرئيسية
                 document.getElementById('total-profit').textContent = `$${this.totalProfit.toLocaleString()}`;
                 document.getElementById('daily-profit').textContent = `$${this.dailyProfit.toLocaleString()}`;
                 document.getElementById('wallet-balance').textContent = `$${this.walletBalance.toLocaleString()}`;
                 document.getElementById('active-bots').textContent = `${this.activeBots}/12`;
                 document.getElementById('success-rate').textContent = `${this.successRate.toFixed(1)}%`;
                 
-                // حساب الأرصدة الأخرى (افتراضياً 70% سحب، 30% استثمار)
+                // تحديث أرصدة المحفظة (افتراضياً 70% سحب، 30% استثمار)
                 const available = Math.floor(this.walletBalance * 0.7);
                 const invested = Math.floor(this.walletBalance * 0.3);
                 document.getElementById('available-withdraw').textContent = `$${available.toLocaleString()}`;
@@ -531,12 +532,13 @@
                 const botData = this.bots[botId];
                 const button = botElement.querySelector('.bot-toggle-btn');
                 const statusIndicator = botElement.querySelector('.status-indicator');
-                const profitSpan = document.getElementById(`${botId}-profit`); // افتراض أن الـ id موجود
+                const profitSpan = document.getElementById(`${botId}-profit`); 
 
                 if (profitSpan) {
                     profitSpan.textContent = `+$${botData.profit.toLocaleString()}`;
                 }
 
+                // تحديث الحالة والأزرار
                 if (botData.active) {
                     botElement.classList.add('robot-active');
                     statusIndicator.textContent = '🟢 نشط';
@@ -593,10 +595,10 @@
                     </div>
                 `;
                 
-                // Add to beginning
+                // إضافة المعاملة في البداية
                 transactionsContainer.insertBefore(div, transactionsContainer.firstChild);
                 
-                // Limit to 10 transactions
+                // تحديد عدد المعاملات (10)
                 if (transactionsContainer.children.length > 10) {
                     transactionsContainer.removeChild(transactionsContainer.lastChild);
                 }
@@ -604,39 +606,16 @@
 
             // دوال الإجراءات (التي يجب أن تتفاعل مع Firebase)
             async withdrawMoney() {
-                alert('🏦 وظيفة سحب الأرباح جاهزة للربط بقاعدة البيانات (مطلوب Auth/Functions).');
+                alert('🏦 وظيفة سحب الأرباح جاهزة للربط بالـ Auth.');
             }
             
             async reinvestMoney() {
                 alert('🔄 وظيفة إعادة الاستثمار جاهزة للربط بقاعدة البيانات.');
             }
-            
-            // دوال المحاكاة (كإجراء مؤقت لحين ربط Firebase)
-            initializeDummyData() {
-                this.totalProfit = 18542;
-                this.dailyProfit = 847;
-                this.successRate = 96.7;
-                this.walletBalance = 12542;
-                this.incomeSources = [
-                    { icon: '📈', sourceName: 'تداول الذهب والعملات', revenue: 5847, growth: 12.5, status: 'ممتاز' },
-                    { icon: '🛒', sourceName: 'متجر إلكتروني آلي', revenue: 3591, growth: 8.3, status: 'جيد' },
-                    { icon: '🤝', sourceName: 'وساطة تجارية', revenue: 2874, growth: 15.2, status: 'ممتاز' },
-                    { icon: '🌐', sourceName: 'تسويق رقمي', revenue: 1845, growth: 5.7, status: 'متوسط' },
-                    { icon: '💼', sourceName: 'استثمارات ذكية', revenue: 4385, growth: 9.8, status: 'ممتاز' },
-                ];
-                this.bots = {
-                    trading: { active: true, profit: 324, type: 'تداول' },
-                    ecommerce: { active: true, profit: 187, type: 'تجارة' },
-                    affiliate: { active: true, profit: 89, type: 'تسويق' },
-                    crypto: { active: true, profit: 156, type: 'عملات' },
-                };
-                this.renderIncomeSources();
-                this.updateUI();
-            }
 
         }
         
-        // Global Functions
+        // Global Functions (الدوال العامة التي يتم استدعاؤها من الـ HTML)
         function changeLanguage(lang) {
             alert(`🌍 تم التغيير إلى ${lang === 'ar' ? 'العربية' : 'الإنجليزية'}`);
         }
@@ -645,12 +624,14 @@
             await window.globalTradeEmpire.toggleBot(botId);
         }
         
-        function toggleAllBots() {
-            alert('⚠️ وظيفة "تشغيل/إيقاف الكل" تتطلب تعديل جميع المستندات في Firestore، سيتم تنفيذها لاحقاً.');
+        async function toggleAllBots() {
+            await window.globalTradeEmpire.toggleAllBots();
         }
         
-        function startAllBots() {
-            alert('✅ تم تشغيل جميع الروبوتات الذكية!');
+        async function startAllBots() {
+             // تشغيل كل الروبوتات
+             await window.globalTradeEmpire.toggleAllBots(true);
+             alert('✅ تم تشغيل جميع الروبوتات الذكية!');
         }
         
         function withdrawMoney() {
@@ -662,7 +643,7 @@
         }
         
         function showWallet() {
-            window.globalTradeEmpire.showWallet();
+            alert(`💰 محفظتك الرقمية:\n\nالرصيد الكلي: $${window.globalTradeEmpire.walletBalance.toLocaleString()}\nمتاح للسحب: $${(window.globalTradeEmpire.walletBalance * 0.7).toLocaleString()}`);
         }
         
         function showTransactions() {
@@ -673,7 +654,7 @@
         window.onload = function() {
             window.globalTradeEmpire = new GlobalTradeEmpire();
             setTimeout(() => {
-                console.log('🌟 النظام جاهز تماماً!');
+                console.log('🌟 النظام جاهز تماماً! راقب الـ Console لرؤية تحديثات Firebase.');
             }, 1000);
         };
     </script>
