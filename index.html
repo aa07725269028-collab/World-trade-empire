@@ -48,12 +48,14 @@
     
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        // استيراد الدوال المطلوبة من Firestore
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { 
             getAuth, 
             createUserWithEmailAndPassword, 
             signInWithEmailAndPassword, 
-            onAuthStateChanged 
+            onAuthStateChanged,
+            signOut
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         // إعدادات مشروعك
@@ -78,7 +80,9 @@
             auth, 
             createUserWithEmailAndPassword, 
             signInWithEmailAndPassword, 
-            onAuthStateChanged 
+            onAuthStateChanged,
+            signOut,
+            doc, getDoc, setDoc // دوال Firestore الضرورية
         };
         console.log('✅ تم إعداد Firebase بنجاح');
         
@@ -387,13 +391,12 @@
             
             if (email && password && password.length >= 6) {
                 try {
-                    const userCredential = await window.simpleFirebase.createUserWithEmailAndPassword(
+                    await window.simpleFirebase.createUserWithEmailAndPassword(
                         window.simpleFirebase.auth, 
                         email, 
                         password
                     );
                     alert('🎉 تم إنشاء حسابك بنجاح!');
-                    // onAuthStateChanged سيتولى تحديث حالة المستخدم
                 } catch (error) {
                     alert('⚠️ خطأ: ' + error.message);
                     console.error('Registration Error:', error);
@@ -408,13 +411,12 @@
             
             if (email && password) {
                 try {
-                    const userCredential = await window.simpleFirebase.signInWithEmailAndPassword(
+                    await window.simpleFirebase.signInWithEmailAndPassword(
                         window.simpleFirebase.auth, 
                         email, 
                         password
                     );
                     alert('✅ تم تسجيل الدخول بنجاح!');
-                    // onAuthStateChanged سيتولى تحديث حالة المستخدم
                 } catch (error) {
                     alert('⚠️ خطأ: ' + error.message);
                     console.error('Login Error:', error);
@@ -425,9 +427,9 @@
         async function logoutUser() {
             if (!window.simpleFirebase) return alert('⚠️ نظام Firebase غير جاهز بعد.');
             try {
-                await window.simpleFirebase.auth.signOut();
+                // استخدام دالة signOut المستوردة
+                await window.simpleFirebase.signOut(window.simpleFirebase.auth);
                 alert('تم تسجيل الخروج');
-                // onAuthStateChanged سيتولى تحديث حالة المستخدم
             } catch (error) {
                 alert('⚠️ خطأ في تسجيل الخروج: ' + error.message);
                 console.error('Logout Error:', error);
@@ -453,9 +455,68 @@
                 this.initializeBots();
                 this.startAutoTrading();
                 this.generateTransactions();
+                // 💡 الآن تبدأ محاولة جلب البيانات من Firestore
                 this.initDataLayer();
             }
             
+            // 🆕 الدالة الجديدة: جلب البيانات من Firestore
+            async initDataLayer() {
+                if (window.simpleFirebase && window.simpleFirebase.db) {
+                    const { db, doc, getDoc } = window.simpleFirebase;
+                    try {
+                        // تحديد مسار المستند: المجموعة 'stats' والمستند 'summary'
+                        const docRef = doc(db, "stats", "summary");
+                        const docSnap = await getDoc(docRef); 
+                        
+                        if (docSnap.exists()) {
+                            const data = docSnap.data();
+                            // تحديث قيم الكلاس بناءً على بيانات Firestore
+                            this.totalProfit = data.totalProfit || this.totalProfit;
+                            this.dailyProfit = data.dailyProfit || this.dailyProfit;
+                            this.walletBalance = data.walletBalance || this.walletBalance;
+                            this.successRate = data.successRate || this.successRate;
+                            
+                            this.updateUI();
+                            console.log("✅ تم تحميل البيانات الأولية من Firestore!");
+                        } else {
+                            console.log("⚠️ مستند 'stats/summary' غير موجود. استخدام القيم الافتراضية.");
+                        }
+                    } catch (error) {
+                        console.error("خطأ في جلب البيانات من Firestore، استخدام النسخة المحلية:", error);
+                        this.loadFromStorage();
+                    }
+                } else {
+                    this.loadFromStorage();
+                }
+            }
+            
+            // 🆕 الدالة الجديدة: حفظ البيانات في Firestore (مع نسخة احتياطية محلية)
+            async saveData() {
+                const dataToSave = {
+                    totalProfit: this.totalProfit,
+                    dailyProfit: this.dailyProfit,
+                    walletBalance: this.walletBalance,
+                    successRate: this.successRate,
+                    lastUpdated: Date.now()
+                };
+
+                if (window.simpleFirebase && window.simpleFirebase.db) {
+                    const { db, doc, setDoc } = window.simpleFirebase;
+                    try {
+                        const docRef = doc(db, "stats", "summary");
+                        // استخدام setDoc مع { merge: true } لتحديث الحقول فقط
+                        await setDoc(docRef, dataToSave, { merge: true });
+                        console.log("💾 تم حفظ البيانات في Firestore.");
+                    } catch (error) {
+                        console.error("خطأ في حفظ البيانات في Firestore:", error);
+                    }
+                }
+                
+                // حفظ نسخة احتياطية محلية
+                localStorage.setItem('globalTradeEmpire', JSON.stringify(dataToSave));
+            }
+            
+            // الدوال المتبقية...
             initializeBots() {
                 this.bots = {
                     trading: { active: true, profit: 324, type: 'تداول' },
@@ -614,6 +675,7 @@
                     this.updateUI();
                     this.addTransaction('سحب أرباح', -withdrawAmount, 'سحب');
                     alert(`✅ تم سحب $${withdrawAmount} بنجاح!\nالرصيد الجديد: $${this.walletBalance.toLocaleString()}`);
+                    this.saveData(); // حفظ التغيير في الرصيد
                 } else {
                     alert('⚠️ الرصيد غير كافي للسحب');
                 }
@@ -627,6 +689,7 @@
                     this.addTransaction('إعادة استثمار', -investAmount, 'استثمار');
                     this.successRate = Math.min(99.9, this.successRate + 0.5);
                     alert(`✅ تم إعادة استثمار $${investAmount}!\nمعدل النجاح الجديد: ${this.successRate}%`);
+                    this.saveData(); // حفظ التغيير في الرصيد ومعدل النجاح
                 } else {
                     alert('⚠️ الرصيد غير كافي للاستثمار');
                 }
@@ -653,22 +716,6 @@
                 if (transactionsContainer.children.length > 10) {
                     transactionsContainer.removeChild(transactionsContainer.lastChild);
                 }
-            }
-            
-            initDataLayer() {
-                // Logic to load/save data (e.g., from Firestore using window.simpleFirebase.db)
-                this.loadFromStorage();
-            }
-            
-            saveToStorage() {
-                const data = {
-                    totalProfit: this.totalProfit,
-                    dailyProfit: this.dailyProfit,
-                    walletBalance: this.walletBalance,
-                    bots: this.bots,
-                    successRate: this.successRate
-                };
-                localStorage.setItem('globalTradeEmpire', JSON.stringify(data));
             }
             
             loadFromStorage() {
@@ -743,9 +790,9 @@
         window.onload = function() {
             window.globalTradeEmpire = new GlobalTradeEmpire();
             
-            // Auto-save every 30 seconds
+            // 💡 الآن يتم حفظ البيانات في Firestore كل 30 ثانية
             setInterval(() => {
-                window.globalTradeEmpire.saveToStorage();
+                window.globalTradeEmpire.saveData(); 
             }, 30000);
             
             setTimeout(() => {
