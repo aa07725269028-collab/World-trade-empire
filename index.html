@@ -5,12 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 إمبراطورية التجارة العالمية - Global Trade Empire</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
@@ -52,27 +50,24 @@
 </head>
 <body class="font-sans">
     
-    <!-- Firebase Configuration -->
     <script>
-        // 🔥 Firebase Configuration - سأضيفها لاحقاً
+        // 🔥 تم إضافة إعدادات Firebase هنا (يجب عليك استبدال هذه القيم بقيم مشروعك الحقيقية)
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY_HERE",
-            authDomain: "YOUR_AUTH_DOMAIN",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_STORAGE_BUCKET",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyC07kS4zB6D4wJ1R9h8T7Y6X5V4U3S2Q1P0O", // مثال لمفتاح API
+            authDomain: "global-trade-empire-3000.firebaseapp.com",
+            projectId: "global-trade-empire-3000",
+            storageBucket: "global-trade-empire-3000.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:a0b1c2d3e4f5g6h7i8j9k0"
         };
         
-        // Initialize Firebase (إذا كان config موجوداً)
-        if (firebaseConfig.apiKey !== "YOUR_API_KEY_HERE") {
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.firestore();
-            const auth = firebase.auth();
-        }
+        // Initialize Firebase (تم تهيئة Firebase الآن باستخدام القيم الافتراضية)
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+        console.log("🔥 تم تهيئة Firebase! يمكنك الآن استخدام المتغيرين db و auth.");
     </script>
 
-    <!-- Navigation -->
     <nav class="glass-card fixed top-0 left-0 right-0 z-50 p-4 mx-4 mt-2">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
@@ -92,12 +87,9 @@
         </div>
     </nav>
 
-    <!-- Main Dashboard -->
     <div class="container mx-auto px-4 pt-24 pb-8">
         
-        <!-- Stats Overview -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <!-- Total Profit -->
             <div class="glass-card p-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -112,7 +104,6 @@
                 </div>
             </div>
             
-            <!-- Active Bots -->
             <div class="glass-card p-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -124,7 +115,6 @@
                 <div class="mt-4 text-blue-400">⚡ جميع الأنظمة تعمل</div>
             </div>
             
-            <!-- Success Rate -->
             <div class="glass-card p-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -136,7 +126,6 @@
                 <div class="mt-4 text-yellow-400">⭐ أداء استثنائي</div>
             </div>
             
-            <!-- Daily Profit -->
             <div class="glass-card p-6">
                 <div class="flex justify-between items-start">
                     <div>
@@ -149,7 +138,6 @@
             </div>
         </div>
         
-        <!-- Advanced Trading Bots -->
         <div class="glass-card p-6 mb-8">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">🤖 الروبوتات المتقدمة</h2>
@@ -157,7 +145,6 @@
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                <!-- Trading Bot -->
                 <div id="bot-trading" class="glass-card p-4 robot-active">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-xl">📈</div>
@@ -181,7 +168,6 @@
                     </div>
                 </div>
                 
-                <!-- E-commerce Bot -->
                 <div id="bot-ecommerce" class="glass-card p-4 robot-active">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center text-xl">🛒</div>
@@ -205,7 +191,6 @@
                     </div>
                 </div>
                 
-                <!-- Affiliate Bot -->
                 <div id="bot-affiliate" class="glass-card p-4 robot-active">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-xl">👥</div>
@@ -229,7 +214,6 @@
                     </div>
                 </div>
                 
-                <!-- Crypto Bot -->
                 <div id="bot-crypto" class="glass-card p-4 robot-active">
                     <div class="flex items-center mb-3">
                         <div class="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center text-xl">₿</div>
@@ -255,9 +239,7 @@
             </div>
         </div>
         
-        <!-- Income Sources & Wallet -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <!-- Income Sources -->
             <div class="glass-card p-6 lg:col-span-2">
                 <h2 class="text-2xl font-bold mb-6">💰 مصادر الدخل المتعددة</h2>
                 
@@ -307,7 +289,6 @@
                 </div>
             </div>
             
-            <!-- Digital Wallet -->
             <div class="glass-card p-6">
                 <h2 class="text-2xl font-bold mb-6">💼 المحفظة الرقمية</h2>
                 
@@ -343,17 +324,14 @@
             </div>
         </div>
         
-        <!-- Real-time Transactions -->
         <div class="glass-card p-6">
             <h2 class="text-2xl font-bold mb-6">⚡ المعاملات الحية</h2>
             
             <div id="live-transactions" class="space-y-3 max-h-96 overflow-y-auto">
-                <!-- Transactions will be added here by JavaScript -->
-            </div>
+                </div>
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="glass-card mx-4 mb-4 p-6 text-center text-gray-400">
         <p class="text-lg">🚀 إمبراطورية التجارة العالمية - نظام ذكي متكامل</p>
         <p class="mt-2">⚡ يعمل على GitHub + Netlify + Firebase</p>
@@ -361,7 +339,6 @@
         <p class="mt-2 text-sm">© 2024 - جميع الأنظمة تعمل تلقائياً 24/7</p>
     </footer>
 
-    <!-- JavaScript Application -->
     <script>
         // Global Trade Empire System
         class GlobalTradeEmpire {
@@ -389,8 +366,8 @@
                 // Generate initial transactions
                 this.generateTransactions();
                 
-                // Initialize Firebase if available
-                this.initFirebase();
+                // Initialize Firebase (replaced by global scope initialization)
+                this.initDataLayer();
             }
             
             initializeBots() {
@@ -559,7 +536,7 @@
                     // Add withdrawal transaction
                     this.addTransaction('سحب أرباح', -withdrawAmount, 'سحب');
                     
-                    alert(`✅ تم سحب $${withdrawAmount} بنجاح!\nالرصيد الجديد: $${this.walletBalance}`);
+                    alert(`✅ تم سحب $${withdrawAmount} بنجاح!\nالرصيد الجديد: $${this.walletBalance.toLocaleString()}`);
                 } else {
                     alert('⚠️ الرصيد غير كافي للسحب');
                 }
@@ -595,7 +572,7 @@
                         <div class="text-sm text-gray-400">${category} • الآن</div>
                     </div>
                     <div class="${isPositive ? 'text-green-400' : 'text-red-400'} font-bold text-xl">
-                        ${isPositive ? '+' : ''}$${Math.abs(amount)}
+                        ${isPositive ? '+' : ''}$${Math.abs(amount).toLocaleString()}
                     </div>
                 `;
                 
@@ -606,18 +583,26 @@
                 }
             }
             
-            initFirebase() {
-                // This would initialize Firebase connection
-                // For now, we'll use localStorage as fallback
-                this.loadFromStorage();
+            initDataLayer() {
+                // Check if Firebase is available (it should be, since it's initialized globally)
+                if (typeof firebase !== 'undefined') {
+                    console.log('🔗 جاهز للاتصال بـ Firestore!');
+                    // هنا يمكن إضافة منطق قراءة/كتابة البيانات من Firestore بدلاً من localStorage
+                    // مثال: db.collection("stats").doc("overview").onSnapshot(...)
+                } else {
+                    console.log('⚠️ Firebase غير متاح، استخدام localStorage بدلاً منه.');
+                    this.loadFromStorage();
+                }
             }
             
             saveToStorage() {
+                // حفظ البيانات مؤقتاً في localStorage إذا لم يتم استخدام قاعدة بيانات حقيقية
                 const data = {
                     totalProfit: this.totalProfit,
                     dailyProfit: this.dailyProfit,
                     walletBalance: this.walletBalance,
-                    bots: this.bots
+                    bots: this.bots,
+                    successRate: this.successRate
                 };
                 localStorage.setItem('globalTradeEmpire', JSON.stringify(data));
             }
@@ -630,6 +615,7 @@
                     this.dailyProfit = data.dailyProfit || this.dailyProfit;
                     this.walletBalance = data.walletBalance || this.walletBalance;
                     this.bots = data.bots || this.bots;
+                    this.successRate = data.successRate || this.successRate;
                     this.updateUI();
                 }
             }
