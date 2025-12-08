@@ -77,6 +77,43 @@
             console.warn("❌ لم يتم ربط Firebase، تأكد من مفاتيح الربط.");
         }
     </script>
+    <nav id="main-nav" class="glass-card fixed top-0 left-0 right-0 z-50 p-4 mx-4 mt-2" style="display: none;">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3 space-x-reverse">
+                <div class="text-3xl">🚀</div>
+                <div>
+                    <h1 class="text-xl font-bold">إمبراطورية التجارة العالمية</h1>
+                    <p class="text-sm text-gray-400">نظام ذكي متكامل 24/7</p>
+                </div>
+            </div>
+            
+            <div class="flex space-x-2 space-x-reverse">
+                <span id="user-display" class="text-sm text-yellow-300 self-center"></span>
+                <button onclick="showSubscriptionInfo()" class="px-4 py-2 rounded-lg bg-yellow-600 hover:bg-yellow-700 transition font-bold">💵 اشترك الآن</button> <button onclick="changeLanguage('ar')" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition">العربية</button>
+                <button onclick="logoutUser()" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition">🔒 تسجيل الخروج</button>
+            </div>
+        </div>
+    </nav>
+    
+    <script>
+        // قم بإضافة الدالة الجديدة في قسم الدوال العامة
+        function showSubscriptionInfo() {
+            alert(`
+            💰 خطة الاشتراك الشهري: 29 USDT
+
+            طرق الدفع الدولية:
+            1. العملات الرقمية (USDT - TRC20):
+               - العنوان: TUSDTADDRESS1234567890 (عنوان محفظتك هنا)
+               - الشبكة: Tron (TRC20)
+
+            طرق الدفع المحلية (العراق):
+            2. زين كاش: (رقم هاتفك هنا)
+
+            بعد الدفع، راسلنا عبر البريد: support@empire.com لتفعيل حسابك يدوياً خلال 10 دقائق.
+            `);
+        }
+        // ... (باقي الدوال) ...
+    </script>
 
     <nav id="main-nav" class="glass-card fixed top-0 left-0 right-0 z-50 p-4 mx-4 mt-2" style="display: none;">
         <div class="container mx-auto flex justify-between items-center">
