@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 إمبراطورية التجارة العالمية - Global Trade Empire</title>
+    <title>🚀 إمبراطورية التجارة العالمية - تسجيل الدخول</title>
     
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -46,6 +46,9 @@
         .robot-active {
             box-shadow: 0 0 20px rgba(5, 150, 105, 0.3);
         }
+
+        /* إخفاء لوحة التحكم الرئيسية في البداية */
+        #main-dashboard-content { display: none; }
     </style>
 </head>
 <body class="font-sans">
@@ -61,7 +64,8 @@
             appId: "1:886847018038:web:4bb4260e5619bb852b3497"
         };
         
-        let db, auth; // متغيرات عامة للوصول إلى Firestore و Auth
+        let db, auth; 
+        let currentUser = null; // لتخزين بيانات المستخدم الحالي
         
         // Initialize Firebase
         if (firebaseConfig.apiKey && firebase.initializeApp) {
@@ -74,7 +78,7 @@
         }
     </script>
 
-    <nav class="glass-card fixed top-0 left-0 right-0 z-50 p-4 mx-4 mt-2">
+    <nav id="main-nav" class="glass-card fixed top-0 left-0 right-0 z-50 p-4 mx-4 mt-2" style="display: none;">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
                 <div class="text-3xl">🚀</div>
@@ -85,16 +89,34 @@
             </div>
             
             <div class="flex space-x-2 space-x-reverse">
+                <span id="user-display" class="text-sm text-yellow-300 self-center"></span>
                 <button onclick="changeLanguage('ar')" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 transition">العربية</button>
-                <button onclick="changeLanguage('en')" class="px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 transition">English</button>
-                <button onclick="showWallet()" class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 transition">💰 المحفظة</button>
-                <button onclick="startAllBots()" class="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-700 transition">▶️ تشغيل الكل</button>
+                <button onclick="logoutUser()" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition">🔒 تسجيل الخروج</button>
             </div>
         </div>
     </nav>
 
-    <div class="container mx-auto px-4 pt-24 pb-8">
-        
+    <div id="auth-screen" class="flex items-center justify-center min-h-screen">
+        <div class="glass-card p-8 w-full max-w-md text-center">
+            <h2 class="text-3xl font-bold mb-6">مرحباً بك في إمبراطورية التجارة 🚀</h2>
+            
+            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" class="w-full p-3 mb-4 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right" dir="ltr">
+            
+            <input type="password" id="auth-password" placeholder="كلمة المرور" class="w-full p-3 mb-4 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right" dir="ltr">
+
+            <p id="auth-message" class="text-red-400 mb-4"></p>
+            
+            <button onclick="loginUser()" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold transition mb-3">
+                تسجيل الدخول
+            </button>
+            
+            <button onclick="signupUser()" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-lg font-bold transition">
+                إنشاء حساب جديد
+            </button>
+        </div>
+    </div>
+
+    <div id="main-dashboard-content" class="container mx-auto px-4 pt-24 pb-8">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <div class="glass-card p-6">
                 <div class="flex justify-between items-start">
@@ -319,34 +341,91 @@
         // Global Trade Empire System
         class GlobalTradeEmpire {
             constructor() {
-                // القيم الأولية (سيتم استبدالها ببيانات Firebase لحظياً)
                 this.totalProfit = 0;
                 this.dailyProfit = 0;
                 this.activeBots = 0;
                 this.successRate = 0;
                 this.walletBalance = 0;
-                this.language = 'ar';
                 this.bots = {};
                 this.incomeSources = [];
                 
-                this.init();
-            }
-            
-            init() {
-                console.log('🚀 إمبراطورية التجارة العالمية تعمل الآن!');
-                this.initFirebase();
+                // هذه الدالة تم استبدالها بـ checkAuthState
+                // this.init(); 
             }
             
             // ==========================================================
-            // 🔥 أهم دالة: ربط Firebase والحصول على البيانات لحظياً (Listeners)
+            // 🔥 دوال المصادقة (Authentication Functions)
             // ==========================================================
-            async initFirebase() {
-                if (!db) {
-                    console.error("Firebase DB غير متوفر. تأكد من أن قواعد الأمان صحيحة.");
+            handleAuthError(error) {
+                const messageElement = document.getElementById('auth-message');
+                let message = 'حدث خطأ غير معروف.';
+                switch (error.code) {
+                    case 'auth/invalid-email':
+                        message = 'البريد الإلكتروني غير صحيح.';
+                        break;
+                    case 'auth/user-not-found':
+                    case 'auth/wrong-password':
+                        message = 'البريد أو كلمة المرور غير صحيحة.';
+                        break;
+                    case 'auth/email-already-in-use':
+                        message = 'هذا البريد مستخدم بالفعل.';
+                        break;
+                    default:
+                        message = 'خطأ: ' + error.message;
+                }
+                messageElement.textContent = message;
+                console.error("Firebase Auth Error:", error);
+            }
+
+            async loginUser() {
+                const email = document.getElementById('auth-email').value;
+                const password = document.getElementById('auth-password').value;
+                document.getElementById('auth-message').textContent = '';
+                if (!email || !password) {
+                    document.getElementById('auth-message').textContent = 'الرجاء إدخال البريد وكلمة المرور.';
                     return;
                 }
                 
-                console.log("جارٍ محاولة الاتصال بقاعدة بيانات Firestore...");
+                try {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    // onAuthStateChanged سيتولى عملية إظهار لوحة التحكم
+                } catch (error) {
+                    this.handleAuthError(error);
+                }
+            }
+
+            async signupUser() {
+                const email = document.getElementById('auth-email').value;
+                const password = document.getElementById('auth-password').value;
+                document.getElementById('auth-message').textContent = '';
+                if (password.length < 6) {
+                    document.getElementById('auth-message').textContent = 'كلمة المرور يجب أن لا تقل عن 6 أحرف.';
+                    return;
+                }
+                
+                try {
+                    await auth.createUserWithEmailAndPassword(email, password);
+                    alert("✅ تم إنشاء الحساب بنجاح. يمكنك الآن تسجيل الدخول.");
+                    // onAuthStateChanged سيتولى عملية إظهار لوحة التحكم
+                } catch (error) {
+                    this.handleAuthError(error);
+                }
+            }
+
+            async logoutUser() {
+                await auth.signOut();
+                console.log("تم تسجيل الخروج.");
+            }
+
+            // ==========================================================
+            // 🔥 أهم دالة: ربط Firebase والحصول على البيانات لحظياً (Listeners)
+            // ==========================================================
+            startDashboardListeners() {
+                if (!db) {
+                    console.error("Firebase DB غير متوفر.");
+                    return;
+                }
+                console.log("🌟 بدء الاستماع لبيانات لوحة التحكم.");
                 
                 // 1. الاستماع لبيانات لوحة التحكم الرئيسية (Dashboard Stats)
                 this.listenToDashboardStats();
@@ -373,7 +452,7 @@
                         this.dailyProfit = data.dailyProfit || 0;
                         this.successRate = data.successRate || 0;
                         this.walletBalance = data.walletBalance || 0;
-                        this.updateUI(); // تحديث الواجهة عند أي تغيير
+                        this.updateUI(); 
                         console.log("🌟 تم تحديث الإحصائيات العامة لحظياً من Firebase.");
                     }
                 }, error => {
@@ -384,7 +463,7 @@
             // الروبوتات - لحظي
             listenToBots() {
                 db.collection('bots').onSnapshot(snapshot => {
-                    this.bots = {}; // تفريغ البيانات القديمة
+                    this.bots = {}; 
                     snapshot.docs.forEach(doc => {
                         const botId = doc.id;
                         const data = doc.data();
@@ -395,7 +474,6 @@
                         };
                         this.updateBotUI(botId);
                     });
-                    // حساب الروبوتات النشطة وتحديث الـ UI
                     this.activeBots = Object.values(this.bots).filter(b => b.active).length;
                     this.updateUI(); 
                     console.log("🤖 تم تحديث حالة الروبوتات لحظياً من Firebase.");
@@ -435,7 +513,6 @@
             // دوال التحكم (تحديث Firebase)
             // ==========================================================
 
-            // تحديث حالة روبوت واحد
             async toggleBot(botId) {
                 if (!db || !this.bots[botId]) return;
 
@@ -451,11 +528,9 @@
                 });
             }
 
-            // تحديث جميع الروبوتات
             async toggleAllBots(forceStatus = null) {
                 if (!db) return;
                 
-                // تحديد الحالة المطلوبة: إذا لم يتم تحديدها، نعكس حالة الكل
                 const allActive = Object.values(this.bots).every(bot => bot.active);
                 const targetStatus = forceStatus !== null ? forceStatus : !allActive;
                 
@@ -472,11 +547,16 @@
                 });
             }
 
-
-            // تحديث الأرباح التلقائي (محاكاة)
             startFirebaseAutoUpdate() {
-                setInterval(async () => {
-                    if (!db) return;
+                // إيقاف أي تحديث تلقائي سابق لتجنب التكرار
+                if (this.autoUpdateInterval) clearInterval(this.autoUpdateInterval);
+
+                this.autoUpdateInterval = setInterval(async () => {
+                    // يجب أن يعمل هذا التحديث فقط إذا كان المستخدم مسجلاً الدخول
+                    if (!db || !currentUser) {
+                         console.log("توقف التحديث التلقائي: المستخدم غير مسجل الدخول.");
+                         return;
+                    }
 
                     const profitIncrease = Math.floor(Math.random() * 50) + 10;
                     
@@ -500,7 +580,7 @@
                         });
                         
                     } catch (e) {
-                        console.error("فشل تحديث Firebase التلقائي:", e);
+                        console.error("فشل تحديث Firebase التلقائي (ربما قواعد الأمان):", e);
                     }
                 }, 30000); // كل 30 ثانية
             }
@@ -508,21 +588,17 @@
             // ==========================================================
             // دوال العرض (UI Rendering)
             // ==========================================================
-
             updateUI() {
-                // تحديث إحصائيات لوحة التحكم الرئيسية
                 document.getElementById('total-profit').textContent = `$${this.totalProfit.toLocaleString()}`;
                 document.getElementById('daily-profit').textContent = `$${this.dailyProfit.toLocaleString()}`;
                 document.getElementById('wallet-balance').textContent = `$${this.walletBalance.toLocaleString()}`;
                 document.getElementById('active-bots').textContent = `${this.activeBots}/12`;
                 document.getElementById('success-rate').textContent = `${this.successRate.toFixed(1)}%`;
                 
-                // تحديث أرصدة المحفظة (افتراضياً 70% سحب، 30% استثمار)
                 const available = Math.floor(this.walletBalance * 0.7);
                 const invested = Math.floor(this.walletBalance * 0.3);
                 document.getElementById('available-withdraw').textContent = `$${available.toLocaleString()}`;
                 document.getElementById('invested-balance').textContent = `$${invested.toLocaleString()}`;
-
             }
 
             updateBotUI(botId) {
@@ -538,7 +614,6 @@
                     profitSpan.textContent = `+$${botData.profit.toLocaleString()}`;
                 }
 
-                // تحديث الحالة والأزرار
                 if (botData.active) {
                     botElement.classList.add('robot-active');
                     statusIndicator.textContent = '🟢 نشط';
@@ -595,67 +670,86 @@
                     </div>
                 `;
                 
-                // إضافة المعاملة في البداية
                 transactionsContainer.insertBefore(div, transactionsContainer.firstChild);
                 
-                // تحديد عدد المعاملات (10)
                 if (transactionsContainer.children.length > 10) {
                     transactionsContainer.removeChild(transactionsContainer.lastChild);
                 }
             }
-
-            // دوال الإجراءات (التي يجب أن تتفاعل مع Firebase)
-            async withdrawMoney() {
-                alert('🏦 وظيفة سحب الأرباح جاهزة للربط بالـ Auth.');
-            }
-            
-            async reinvestMoney() {
-                alert('🔄 وظيفة إعادة الاستثمار جاهزة للربط بقاعدة البيانات.');
-            }
-
         }
         
         // Global Functions (الدوال العامة التي يتم استدعاؤها من الـ HTML)
-        function changeLanguage(lang) {
-            alert(`🌍 تم التغيير إلى ${lang === 'ar' ? 'العربية' : 'الإنجليزية'}`);
+        
+        // ********** دوال المصادقة العامة **********
+        function loginUser() {
+            window.globalTradeEmpire.loginUser();
+        }
+        function signupUser() {
+            window.globalTradeEmpire.signupUser();
+        }
+        function logoutUser() {
+            window.globalTradeEmpire.logoutUser();
+        }
+        // *****************************************
+
+
+        function toggleBot(botId) {
+            window.globalTradeEmpire.toggleBot(botId);
         }
         
-        async function toggleBot(botId) {
-            await window.globalTradeEmpire.toggleBot(botId);
+        function toggleAllBots() {
+            window.globalTradeEmpire.toggleAllBots();
         }
         
-        async function toggleAllBots() {
-            await window.globalTradeEmpire.toggleAllBots();
-        }
-        
-        async function startAllBots() {
-             // تشغيل كل الروبوتات
-             await window.globalTradeEmpire.toggleAllBots(true);
+        function startAllBots() {
+             window.globalTradeEmpire.toggleAllBots(true);
              alert('✅ تم تشغيل جميع الروبوتات الذكية!');
         }
         
         function withdrawMoney() {
-            window.globalTradeEmpire.withdrawMoney();
+            alert('🏦 وظيفة سحب الأرباح جاهزة. الآن عليك تسجيل الدخول أولاً لتنفيذها.');
         }
         
         function reinvestMoney() {
-            window.globalTradeEmpire.reinvestMoney();
+            alert('🔄 وظيفة إعادة الاستثمار جاهزة. الآن عليك تسجيل الدخول أولاً لتنفيذها.');
         }
         
-        function showWallet() {
-            alert(`💰 محفظتك الرقمية:\n\nالرصيد الكلي: $${window.globalTradeEmpire.walletBalance.toLocaleString()}\nمتاح للسحب: $${(window.globalTradeEmpire.walletBalance * 0.7).toLocaleString()}`);
-        }
-        
-        function showTransactions() {
-            alert('📋 المعاملات الحية يتم تحديثها أدناه تلقائياً.');
+        function checkAuthState() {
+            // الاستماع لحالة المصادقة
+            auth.onAuthStateChanged(user => {
+                const authScreen = document.getElementById('auth-screen');
+                const dashboard = document.getElementById('main-dashboard-content');
+                const nav = document.getElementById('main-nav');
+                const userDisplay = document.getElementById('user-display');
+                
+                if (user) {
+                    // المستخدم مسجل الدخول
+                    currentUser = user;
+                    authScreen.style.display = 'none';
+                    dashboard.style.display = 'block';
+                    nav.style.display = 'flex';
+                    userDisplay.textContent = `مرحباً، ${user.email}`;
+                    window.globalTradeEmpire.startDashboardListeners(); // بدء جلب البيانات
+                    console.log(`👤 المستخدم ${user.email} مسجل الدخول.`);
+                } else {
+                    // المستخدم غير مسجل الدخول
+                    currentUser = null;
+                    authScreen.style.display = 'flex';
+                    dashboard.style.display = 'none';
+                    nav.style.display = 'none';
+                    // إيقاف التحديث التلقائي إذا لم يكن هناك مستخدم
+                    if (window.globalTradeEmpire.autoUpdateInterval) {
+                        clearInterval(window.globalTradeEmpire.autoUpdateInterval);
+                    }
+                    console.log("🔒 لا يوجد مستخدم مسجل الدخول.");
+                }
+            });
         }
         
         // Initialize Application
         window.onload = function() {
             window.globalTradeEmpire = new GlobalTradeEmpire();
-            setTimeout(() => {
-                console.log('🌟 النظام جاهز تماماً! راقب الـ Console لرؤية تحديثات Firebase.');
-            }, 1000);
+            checkAuthState(); // فحص حالة المصادقة عند تحميل الصفحة
         };
     </script>
 
