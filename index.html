@@ -787,8 +787,25 @@
         window.onload = function() {
             window.globalTradeEmpire = new GlobalTradeEmpire();
             checkAuthState(); // فحص حالة المصادقة عند تحميل الصفحة
-        };
+ 
+    };
+  <button onclick="checkFirebase()" 
+        style="position:fixed; top:20px; right:20px; 
+               background:red; color:white; padding:10px;">
+   🔍 اختبار Firebase
+</button>
+
+<script>
+function checkFirebase() {
+  if (window.simpleFirebase) {
+    alert("✅ Firebase يعمل!");
+  } else {
+    alert("❌ Firebase لا يعمل!");
+  }
+}
+</script>
     </script>
+
 
 </body>
 </html>
