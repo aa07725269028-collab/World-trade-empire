@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚀 إمبراطورية التجارة العالمية - لوحة التحكم</title>
     
+    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
@@ -24,6 +25,7 @@
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             min-height: 100vh;
             color: #f1f5f9;
+            font-family: system-ui, -apple-system, sans-serif;
         }
         
         .glass-card {
@@ -33,54 +35,24 @@
             border-radius: 16px;
         }
         
-        .profit-badge {
-            background: linear-gradient(90deg, var(--success), #10b981);
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.8; }
-            100% { opacity: 1; }
-        }
-        
         .robot-active {
-            box-shadow: 0 0 20px rgba(5, 150, 105, 0.5); /* زيادة ظل التوهج */
+            box-shadow: 0 0 20px rgba(5, 150, 105, 0.5);
         }
-
-        /* إخفاء لوحة التحكم الرئيسية في البداية */
-        #main-dashboard-content { display: none; }
-        #main-nav { display: none; }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
     </style>
 </head>
 <body class="font-sans">
     
-    <script>
-        // 🔥 Firebase Configuration - مفاتيحك الصحيحة
-        const firebaseConfig = {
-            apiKey: "AIzaSyCEH0ZXN55qgpZhh_La1Y4pXkNTBMNH-BU",
-            authDomain: "global-trade-empire-6c2d9.firebaseapp.com",
-            projectId: "global-trade-empire-6c2d9",
-            storageBucket: "global-trade-empire-6c2d9.firebasestorage.app",
-            messagingSenderId: "886847018038",
-            appId: "1:886847018038:web:4bb4260e5619bb852b3497"
-        };
-        
-        let db, auth; 
-        let currentUser = null; // لتخزين بيانات المستخدم الحالي
-        
-        // Initialize Firebase
-        if (firebaseConfig.apiKey && firebase.initializeApp) {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.firestore();
-            auth = firebase.auth();
-            console.log("✅ Firebase متصل بقاعدة البيانات Firestore و Authentication.");
-        } else {
-            console.warn("❌ لم يتم ربط Firebase، تأكد من مفاتيح الربط.");
-        }
-    </script>
-    
-    <nav id="main-nav" class="glass-card fixed top-0 left-0 right-0 z-50 p-4 mx-4 mt-2">
+    <!-- شريط التنقل -->
+    <nav id="main-nav" class="glass-card fixed top-0 left-0 right-0 z-50 p-4 mx-4 mt-2" style="display: none;">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center space-x-3 space-x-reverse">
                 <div class="text-3xl">🚀</div>
@@ -90,23 +62,26 @@
                 </div>
             </div>
             
-            <div class="flex space-x-2 space-x-reverse">
-                <span id="user-display" class="text-sm text-yellow-300 self-center"></span>
-                <button onclick="showSubscriptionInfo()" class="px-4 py-2 rounded-lg bg-yellow-600 hover:bg-yellow-700 transition font-bold">💵 اشترك الآن</button>
-                <button onclick="logoutUser()" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition">🔒 تسجيل الخروج</button>
+            <div class="flex space-x-2 space-x-reverse items-center">
+                <span id="user-display" class="text-sm text-yellow-300"></span>
+                <button onclick="showSubscriptionInfo()" class="px-4 py-2 rounded-lg bg-yellow-600 hover:bg-yellow-700 transition font-bold text-sm">💵 اشترك الآن</button>
+                <button onclick="logoutUser()" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 transition text-sm">🔒 تسجيل الخروج</button>
             </div>
         </div>
     </nav>
     
+    <!-- شاشة المصادقة -->
     <div id="auth-screen" class="flex items-center justify-center min-h-screen">
-        <div class="glass-card p-8 w-full max-w-md text-center">
+        <div class="glass-card p-8 w-full max-w-md text-center fade-in">
             <h2 class="text-3xl font-bold mb-6">مرحباً بك في إمبراطورية التجارة 🚀</h2>
             
-            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" class="w-full p-3 mb-4 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right" dir="ltr">
+            <input type="email" id="auth-email" placeholder="البريد الإلكتروني" 
+                   class="w-full p-3 mb-4 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right" dir="ltr">
             
-            <input type="password" id="auth-password" placeholder="كلمة المرور" class="w-full p-3 mb-4 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right" dir="ltr">
+            <input type="password" id="auth-password" placeholder="كلمة المرور" 
+                   class="w-full p-3 mb-4 rounded-lg bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500 text-right" dir="ltr">
 
-            <p id="auth-message" class="text-red-400 mb-4"></p>
+            <p id="auth-message" class="text-red-400 mb-4 min-h-6"></p>
             
             <button onclick="loginUser()" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-lg font-bold transition mb-3">
                 تسجيل الدخول
@@ -118,9 +93,11 @@
         </div>
     </div>
 
-    <div id="main-dashboard-content" class="container mx-auto px-4 pt-24 pb-8">
+    <!-- لوحة التحكم الرئيسية -->
+    <div id="main-dashboard-content" class="container mx-auto px-4 pt-24 pb-8" style="display: none;">
+        <!-- بطاقات الإحصائيات -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div class="glass-card p-6">
+            <div class="glass-card p-6 fade-in">
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-gray-400">إجمالي الأرباح</p>
@@ -134,17 +111,18 @@
                 </div>
             </div>
             
-            <div class="glass-card p-6">
+            <div class="glass-card p-6 fade-in">
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-gray-400">الروبوتات النشطة</p>
-                        <p id="active-bots" class="text-3xl font-bold mt-2">0/4</p> </div>
+                        <p id="active-bots" class="text-3xl font-bold mt-2">0/4</p>
+                    </div>
                     <div class="text-2xl">🤖</div>
                 </div>
                 <div class="mt-4 text-blue-400">⚡ جميع الأنظمة تعمل</div>
             </div>
             
-            <div class="glass-card p-6">
+            <div class="glass-card p-6 fade-in">
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-gray-400">معدل النجاح</p>
@@ -155,7 +133,7 @@
                 <div class="mt-4 text-yellow-400">⭐ أداء استثنائي</div>
             </div>
             
-            <div class="glass-card p-6">
+            <div class="glass-card p-6 fade-in">
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-gray-400">أرباح اليوم</p>
@@ -167,111 +145,22 @@
             </div>
         </div>
         
-        <div class="glass-card p-6 mb-8">
+        <!-- قسم الروبوتات -->
+        <div class="glass-card p-6 mb-8 fade-in">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-2xl font-bold">🤖 الروبوتات المتقدمة</h2>
                 <button onclick="toggleAllBots()" class="px-4 py-2 bg-gray-700 rounded-lg hover:bg-gray-600">تشغيل/إيقاف الكل</button>
             </div>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4" id="bots-container">
-                <div id="bot-trading" class="glass-card p-4">
-                    <div class="flex items-center mb-3">
-                        <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-xl">📈</div>
-                        <div class="mr-3">
-                            <h3 class="font-bold">روبوت التداول الذكي</h3>
-                            <p class="text-sm text-gray-400">تداول الذهب والعملات</p>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="flex justify-between text-sm mb-1">
-                            <span>الأرباح اليومية</span>
-                            <span class="text-green-400" id="trading-profit">+$0</span>
-                        </div>
-                        <div class="w-full bg-gray-700 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-sm text-gray-400 status-indicator">🔴 متوقف</span>
-                        <button onclick="toggleBot('trading')" class="text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn">تشغيل</button>
-                    </div>
-                </div>
-                
-                <div id="bot-ecommerce" class="glass-card p-4">
-                    <div class="flex items-center mb-3">
-                        <div class="w-12 h-12 rounded-lg bg-green-500/20 flex items-center justify-center text-xl">🛒</div>
-                        <div class="mr-3">
-                            <h3 class="font-bold">روبوت التجارة الإلكترونية</h3>
-                            <p class="text-sm text-gray-400">شراء من الصين بيع عالمي</p>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="flex justify-between text-sm mb-1">
-                            <span>الأرباح اليومية</span>
-                            <span class="text-green-400" id="ecommerce-profit">+$0</span>
-                        </div>
-                        <div class="w-full bg-gray-700 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: 65%"></div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-sm text-gray-400 status-indicator">🔴 متوقف</span>
-                        <button onclick="toggleBot('ecommerce')" class="text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn">تشغيل</button>
-                    </div>
-                </div>
-                
-                <div id="bot-affiliate" class="glass-card p-4">
-                    <div class="flex items-center mb-3">
-                        <div class="w-12 h-12 rounded-lg bg-purple-500/20 flex items-center justify-center text-xl">👥</div>
-                        <div class="mr-3">
-                            <h3 class="font-bold">روبوت التسويق بالعمولة</h3>
-                            <p class="text-sm text-gray-400">عمولات من شركاء عالميين</p>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="flex justify-between text-sm mb-1">
-                            <span>الأرباح اليومية</span>
-                            <span class="text-green-400" id="affiliate-profit">+$0</span>
-                        </div>
-                        <div class="w-full bg-gray-700 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: 45%"></div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-sm text-gray-400 status-indicator">🔴 متوقف</span>
-                        <button onclick="toggleBot('affiliate')" class="text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn">تشغيل</button>
-                    </div>
-                </div>
-                
-                <div id="bot-crypto" class="glass-card p-4">
-                    <div class="flex items-center mb-3">
-                        <div class="w-12 h-12 rounded-lg bg-yellow-500/20 flex items-center justify-center text-xl">₿</div>
-                        <div class="mr-3">
-                            <h3 class="font-bold">روبوت العملات الرقمية</h3>
-                            <p class="text-sm text-gray-400">تداول البيتكوين والإيثريوم</p>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="flex justify-between text-sm mb-1">
-                            <span>الأرباح اليومية</span>
-                            <span class="text-green-400" id="crypto-profit">+$0</span>
-                        </div>
-                        <div class="w-full bg-gray-700 rounded-full h-2">
-                            <div class="bg-green-500 h-2 rounded-full" style="width: 55%"></div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between">
-                        <span class="text-sm text-gray-400 status-indicator">🔴 متوقف</span>
-                        <button onclick="toggleBot('crypto')" class="text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn">تشغيل</button>
-                    </div>
-                </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="bots-container">
+                <!-- الروبوتات ستُضاف ديناميكياً -->
             </div>
         </div>
         
+        <!-- مصادر الدخل والمحفظة -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            <div class="glass-card p-6 lg:col-span-2">
+            <div class="glass-card p-6 lg:col-span-2 fade-in">
                 <h2 class="text-2xl font-bold mb-6">💰 مصادر الدخل المتعددة</h2>
-                
                 <div class="overflow-x-auto">
                     <table class="w-full">
                         <thead class="bg-gray-800/50">
@@ -283,14 +172,14 @@
                             </tr>
                         </thead>
                         <tbody id="income-sources-body">
-                            </tbody>
+                            <!-- البيانات ستُضاف ديناميكياً -->
+                        </tbody>
                     </table>
                 </div>
             </div>
             
-            <div class="glass-card p-6">
+            <div class="glass-card p-6 fade-in">
                 <h2 class="text-2xl font-bold mb-6">💼 المحفظة الرقمية</h2>
-                
                 <div class="space-y-4">
                     <div class="flex justify-between items-center p-4 bg-gray-800/30 rounded-lg">
                         <span>الرصيد الكلي</span>
@@ -323,14 +212,16 @@
             </div>
         </div>
         
-        <div class="glass-card p-6">
+        <!-- المعاملات الحية -->
+        <div class="glass-card p-6 fade-in">
             <h2 class="text-2xl font-bold mb-6">⚡ المعاملات الحية</h2>
-            
             <div id="live-transactions" class="space-y-3 max-h-96 overflow-y-auto">
-                </div>
+                <!-- المعاملات ستُضاف ديناميكياً -->
+            </div>
         </div>
     </div>
 
+    <!-- التذييل -->
     <footer class="glass-card mx-4 mb-4 p-6 text-center text-gray-400">
         <p class="text-lg">🚀 إمبراطورية التجارة العالمية - نظام ذكي متكامل</p>
         <p class="mt-2">⚡ يعمل على GitHub + Netlify + Firebase</p>
@@ -339,183 +230,316 @@
     </footer>
 
     <script>
-        // Global Trade Empire System
-        class GlobalTradeEmpire {
-            constructor() {
-                this.totalProfit = 0;
-                this.dailyProfit = 0;
-                this.activeBots = 0;
-                this.successRate = 0;
-                this.walletBalance = 0;
-                this.bots = {};
-                this.incomeSources = [];
-                this.autoUpdateInterval = null; // للحفاظ على مرجع لمؤقت التحديث
-            }
-
-            // ==========================================================
-            // 🔥 دوال المصادقة (Authentication Functions)
-            // ==========================================================
-            handleAuthError(error) {
-                const messageElement = document.getElementById('auth-message');
-                let message = 'حدث خطأ غير معروف.';
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        message = 'البريد الإلكتروني غير صحيح.';
-                        break;
-                    case 'auth/user-not-found':
-                    case 'auth/wrong-password':
-                        message = 'البريد أو كلمة المرور غير صحيحة.';
-                        break;
-                    case 'auth/email-already-in-use':
-                        message = 'هذا البريد مستخدم بالفعل.';
-                        break;
-                    case 'auth/weak-password':
-                        message = 'كلمة المرور ضعيفة جداً، يرجى اختيار كلمة لا تقل عن 6 أحرف.';
-                        break;
-                    default:
-                        message = 'خطأ: ' + error.message;
-                }
-                messageElement.textContent = message;
-                console.error("Firebase Auth Error:", error);
-            }
-
-            async loginUser() {
-                const email = document.getElementById('auth-email').value;
-                const password = document.getElementById('auth-password').value;
-                document.getElementById('auth-message').textContent = '';
-                if (!email || !password) {
-                    document.getElementById('auth-message').textContent = 'الرجاء إدخال البريد وكلمة المرور.';
-                    return;
-                }
-                
-                try {
-                    await auth.signInWithEmailAndPassword(email, password);
-                    // onAuthStateChanged سيتولى عملية إظهار لوحة التحكم
-                } catch (error) {
-                    this.handleAuthError(error);
-                }
-            }
-
-            async signupUser() {
-                const email = document.getElementById('auth-email').value;
-                const password = document.getElementById('auth-password').value;
-                document.getElementById('auth-message').textContent = '';
-                if (password.length < 6) {
-                    document.getElementById('auth-message').textContent = 'كلمة المرور يجب أن لا تقل عن 6 أحرف.';
-                    return;
-                }
-                
-                try {
-                    await auth.createUserWithEmailAndPassword(email, password);
-                    // بعد إنشاء الحساب، سيتم تسجيل الدخول تلقائياً (onAuthStateChanged سيتم تنفيذه)
-                    alert("✅ تم إنشاء الحساب بنجاح. يتم الآن تسجيل دخولك.");
-                } catch (error) {
-                    this.handleAuthError(error);
-                }
-            }
-
-            async logoutUser() {
-                // إيقاف التحديث التلقائي أولاً
-                if (this.autoUpdateInterval) {
-                    clearInterval(this.autoUpdateInterval);
-                    this.autoUpdateInterval = null;
-                }
-                await auth.signOut();
-                console.log("تم تسجيل الخروج.");
-            }
-
-            // ==========================================================
-            // 🔥 أهم دالة: ربط Firebase والحصول على البيانات لحظياً (Listeners)
-            // ==========================================================
-            startDashboardListeners() {
-                if (!db) {
-                    console.error("Firebase DB غير متوفر.");
-                    return;
-                }
-                console.log("🌟 بدء الاستماع لبيانات لوحة التحكم.");
-                
-                // 1. التأكد من وجود البيانات الأولية
-                this.initializeFirestoreData();
-
-                // 2. الاستماع لبيانات لوحة التحكم الرئيسية (Dashboard Stats)
-                this.listenToDashboardStats();
-
-                // 3. الاستماع لبيانات الروبوتات
-                this.listenToBots();
-                
-                // 4. الاستماع لبيانات مصادر الدخل
-                this.listenToIncomeSources();
-
-                // 5. الاستماع للمعاملات الحية
-                this.listenToTransactions();
-                
-                // 6. بدء التحديث التلقائي للأرباح (يحاكي عملية التشغيل الآلي)
-                this.startFirebaseAutoUpdate();
-            }
+        // ============================================
+        // 🔧 تهيئة Firebase - لا تلمس هذه القيم
+        // ============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyCEH0ZXN55qgpZhh_La1Y4pXkNTBMNH-BU",
+            authDomain: "global-trade-empire-6c2d9.firebaseapp.com",
+            projectId: "global-trade-empire-6c2d9",
+            storageBucket: "global-trade-empire-6c2d9.firebasestorage.app",
+            messagingSenderId: "886847018038",
+            appId: "1:886847018038:web:4bb4260e5619bb852b3497"
+        };
+        
+        // ============================================
+        // 📦 تهيئة التطبيق
+        // ============================================
+        let db = null;
+        let auth = null;
+        let currentUser = null;
+        let systemInitialized = false;
+        
+        // تهيئة Firebase عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 بدء تحميل النظام...');
             
-            // دالة لجني الأرباح الفعلي (محاكاة) - تستخدم FieldValue.increment
-            startFirebaseAutoUpdate() {
-                // إيقاف أي تحديث تلقائي سابق لتجنب التكرار
-                if (this.autoUpdateInterval) clearInterval(this.autoUpdateInterval);
-
-                this.autoUpdateInterval = setInterval(async () => {
-                    // يجب أن يعمل هذا التحديث فقط إذا كان المستخدم مسجلاً الدخول
-                    if (!db || !currentUser) {
-                         console.log("توقف التحديث التلقائي: المستخدم غير مسجل الدخول.");
-                         clearInterval(this.autoUpdateInterval);
-                         this.autoUpdateInterval = null;
-                         return;
-                    }
-
-                    // زيادة الأرباح بشكل عشوائي (محاكاة جني الأرباح)
-                    const profitIncrease = Math.floor(Math.random() * 50) + 10;
+            try {
+                // تهيئة Firebase
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                auth = firebase.auth();
+                
+                console.log('✅ Firebase متصل بنجاح');
+                
+                // انتظار تحميل DOM بالكامل
+                setTimeout(() => {
+                    checkAuthState();
+                    console.log('🎯 النظام جاهز للعمل');
+                }, 100);
+                
+            } catch (error) {
+                console.error('❌ فشل تهيئة Firebase:', error);
+                document.getElementById('auth-message').textContent = 'خطأ في الاتصال بالنظام';
+            }
+        });
+        
+        // ============================================
+        // 🔐 نظام المصادقة
+        // ============================================
+        async function checkAuthState() {
+            console.log('🔍 فحص حالة المستخدم...');
+            
+            auth.onAuthStateChanged(async (user) => {
+                const authScreen = document.getElementById('auth-screen');
+                const dashboard = document.getElementById('main-dashboard-content');
+                const nav = document.getElementById('main-nav');
+                const userDisplay = document.getElementById('user-display');
+                
+                if (user) {
+                    // ✅ المستخدم مسجل الدخول
+                    currentUser = user;
+                    console.log(`👤 المستخدم ${user.email} مسجل الدخول`);
                     
-                    try {
-                        // تحديث الإحصائيات (باستخدام FieldValue.increment)
-                        const statsUpdate = db.collection('dashboard').doc('stats').update({
-                            totalProfit: firebase.firestore.FieldValue.increment(profitIncrease),
-                            dailyProfit: firebase.firestore.FieldValue.increment(profitIncrease),
-                            walletBalance: firebase.firestore.FieldValue.increment(profitIncrease),
-                            // تحديث معدل النجاح بشكل دوري (كمثال)
-                            successRate: Math.min(99.9, this.successRate + (Math.random() * 0.1)) 
-                        });
-                        
-                        // تحديث ربح أحد الروبوتات بشكل عشوائي (كمثال)
-                        const botKeys = Object.keys(this.bots);
-                        if (botKeys.length > 0) {
-                            const activeBots = botKeys.filter(key => this.bots[key].active);
-                            if (activeBots.length > 0) {
-                                const randomBotId = activeBots[Math.floor(Math.random() * activeBots.length)];
-                                db.collection('bots').doc(randomBotId).update({
-                                    profit: firebase.firestore.FieldValue.increment(profitIncrease / activeBots.length)
-                                });
-                            }
-                        }
-
-                        // إضافة معاملة جديدة
-                        const types = ['تداول آلي', 'عمولة تجارية', 'ربح استثماري', 'بيع منتج', 'خدمة رقمية'];
-                        const type = types[Math.floor(Math.random() * types.length)];
-                        
-                        const transactionAdd = db.collection('transactions').add({
-                            type: type,
-                            amount: profitIncrease,
-                            category: "ربح آلي",
-                            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                        });
-
-                        await Promise.all([statsUpdate, transactionAdd]);
-                        
-                    } catch (e) {
-                        console.error("فشل تحديث Firebase التلقائي (ربما قواعد الأمان غير مسموح بها للمستخدم):", e);
-                        // في حالة فشل التحديث (ربما لعدم وجود إذن)، أوقف التحديث التلقائي
-                        clearInterval(this.autoUpdateInterval);
-                        this.autoUpdateInterval = null;
+                    // تحديث واجهة المستخدم
+                    if (userDisplay) {
+                        userDisplay.textContent = `مرحباً، ${user.email}`;
+                        console.log('✅ تم عرض اسم المستخدم');
                     }
-                }, 30000); // كل 30 ثانية
+                    
+                    // تبديل الشاشات
+                    authScreen.style.display = 'none';
+                    dashboard.style.display = 'block';
+                    nav.style.display = 'flex';
+                    
+                    // بدء النظام إذا لم يكن مُهيأ
+                    if (!systemInitialized) {
+                        await initializeSystem();
+                        systemInitialized = true;
+                    }
+                    
+                } else {
+                    // ❌ لا يوجد مستخدم مسجل
+                    currentUser = null;
+                    console.log('🔒 لا يوجد مستخدم مسجل');
+                    
+                    // إظهار شاشة المصادقة
+                    authScreen.style.display = 'flex';
+                    dashboard.style.display = 'none';
+                    nav.style.display = 'none';
+                }
+            });
+        }
+        
+        // ============================================
+        // 📋 دوال المصادقة
+        // ============================================
+        async function loginUser() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const messageElement = document.getElementById('auth-message');
+            
+            messageElement.textContent = '';
+            
+            if (!email || !password) {
+                messageElement.textContent = 'الرجاء إدخال البريد الإلكتروني وكلمة المرور';
+                return;
             }
             
-            // تهيئة البيانات الأولية في Firestore إذا لم تكن موجودة
-            async initializeFirestoreData() {
+            try {
+                messageElement.textContent = 'جاري تسجيل الدخول...';
+                messageElement.style.color = '#3b82f6';
+                
+                await auth.signInWithEmailAndPassword(email, password);
+                messageElement.textContent = '✅ تم تسجيل الدخول بنجاح';
+                messageElement.style.color = '#10b981';
+                
+            } catch (error) {
+                console.error('❌ خطأ تسجيل الدخول:', error);
+                messageElement.textContent = getAuthErrorMessage(error);
+                messageElement.style.color = '#ef4444';
+            }
+        }
+        
+        async function signupUser() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const messageElement = document.getElementById('auth-message');
+            
+            messageElement.textContent = '';
+            
+            if (!email || !password) {
+                messageElement.textContent = 'الرجاء إدخال البريد الإلكتروني وكلمة المرور';
+                return;
+            }
+            
+            if (password.length < 6) {
+                messageElement.textContent = 'كلمة المرور يجب أن لا تقل عن 6 أحرف';
+                return;
+            }
+            
+            try {
+                messageElement.textContent = 'جاري إنشاء الحساب...';
+                messageElement.style.color = '#3b82f6';
+                
+                await auth.createUserWithEmailAndPassword(email, password);
+                messageElement.textContent = '✅ تم إنشاء الحساب بنجاح';
+                messageElement.style.color = '#10b981';
+                
+            } catch (error) {
+                console.error('❌ خطأ إنشاء الحساب:', error);
+                messageElement.textContent = getAuthErrorMessage(error);
+                messageElement.style.color = '#ef4444';
+            }
+        }
+        
+        async function logoutUser() {
+            try {
+                await auth.signOut();
+                console.log('✅ تم تسجيل الخروج');
+            } catch (error) {
+                console.error('❌ خطأ تسجيل الخروج:', error);
+            }
+        }
+        
+        function getAuthErrorMessage(error) {
+            const messages = {
+                'auth/invalid-email': 'البريد الإلكتروني غير صحيح',
+                'auth/user-disabled': 'هذا الحساب معطل',
+                'auth/user-not-found': 'البريد الإلكتروني غير مسجل',
+                'auth/wrong-password': 'كلمة المرور غير صحيحة',
+                'auth/email-already-in-use': 'هذا البريد الإلكتروني مستخدم بالفعل',
+                'auth/weak-password': 'كلمة المرور ضعيفة، يجب أن تكون 6 أحرف على الأقل',
+                'auth/network-request-failed': 'خطأ في الاتصال بالشبكة'
+            };
+            
+            return messages[error.code] || 'حدث خطأ غير متوقع، الرجاء المحاولة لاحقاً';
+        }
+        
+        // ============================================
+        // 🚀 تهيئة النظام الرئيسي
+        // ============================================
+        async function initializeSystem() {
+            console.log('⚙️ تهيئة النظام...');
+            
+            try {
+                // 1. تهيئة الروبوتات
+                await initializeBots();
+                
+                // 2. تهيئة الإحصائيات
+                await initializeDashboard();
+                
+                // 3. تهيئة مصادر الدخل
+                await initializeIncomeSources();
+                
+                // 4. بدء الاستماع للتحديثات
+                startRealTimeListeners();
+                
+                // 5. بدء التحديث التلقائي
+                startAutoUpdates();
+                
+                console.log('✅ النظام مهيأ بالكامل');
+                
+            } catch (error) {
+                console.error('❌ فشل تهيئة النظام:', error);
+            }
+        }
+        
+        // ============================================
+        // 🤖 إدارة الروبوتات
+        // ============================================
+        const botsConfig = [
+            { id: 'trading', name: 'روبوت التداول الذكي', desc: 'تداول الذهب والعملات', icon: '📈' },
+            { id: 'ecommerce', name: 'روبوت التجارة الإلكترونية', desc: 'شراء من الصين بيع عالمي', icon: '🛒' },
+            { id: 'affiliate', name: 'روبوت التسويق بالعمولة', desc: 'عمولات من شركاء عالميين', icon: '👥' },
+            { id: 'crypto', name: 'روبوت العملات الرقمية', desc: 'تداول البيتكوين والإيثريوم', icon: '₿' }
+        ];
+        
+        async function initializeBots() {
+            const container = document.getElementById('bots-container');
+            container.innerHTML = '';
+            
+            for (const bot of botsConfig) {
+                const botElement = document.createElement('div');
+                botElement.className = 'glass-card p-4';
+                botElement.id = `bot-${bot.id}`;
+                
+                botElement.innerHTML = `
+                    <div class="flex items-center mb-3">
+                        <div class="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center text-xl">${bot.icon}</div>
+                        <div class="mr-3">
+                            <h3 class="font-bold">${bot.name}</h3>
+                            <p class="text-sm text-gray-400">${bot.desc}</p>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="flex justify-between text-sm mb-1">
+                            <span>الأرباح اليومية</span>
+                            <span class="text-green-400" id="${bot.id}-profit">+$0</span>
+                        </div>
+                        <div class="w-full bg-gray-700 rounded-full h-2">
+                            <div class="bg-green-500 h-2 rounded-full" style="width: 70%"></div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between">
+                        <span class="text-sm text-gray-400 status-indicator">🔴 متوقف</span>
+                        <button onclick="toggleBot('${bot.id}')" class="text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn">تشغيل</button>
+                    </div>
+                `;
+                
+                container.appendChild(botElement);
+            }
+            
+            console.log('✅ تم تهيئة واجهة الروبوتات');
+        }
+        
+        async function toggleBot(botId) {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول لتشغيل الروبوتات');
+                return;
+            }
+            
+            try {
+                const botRef = db.collection('bots').doc(botId);
+                const botDoc = await botRef.get();
+                
+                if (!botDoc.exists) {
+                    await botRef.set({
+                        active: true,
+                        profit: 0,
+                        type: botId,
+                        name: botsConfig.find(b => b.id === botId)?.name || botId
+                    });
+                } else {
+                    const currentActive = botDoc.data().active || false;
+                    await botRef.update({ active: !currentActive });
+                }
+                
+                console.log(`✅ تم تحديث روبوت ${botId}`);
+            } catch (error) {
+                console.error(`❌ خطأ في تحديث روبوت ${botId}:`, error);
+                alert('حدث خطأ، الرجاء المحاولة لاحقاً');
+            }
+        }
+        
+        async function toggleAllBots() {
+            if (!currentUser) {
+                alert('يجب تسجيل الدخول لتشغيل الروبوتات');
+                return;
+            }
+            
+            try {
+                const batch = db.batch();
+                const botsSnapshot = await db.collection('bots').get();
+                
+                botsSnapshot.forEach(doc => {
+                    const botRef = db.collection('bots').doc(doc.id);
+                    const currentActive = doc.data().active || false;
+                    batch.update(botRef, { active: !currentActive });
+                });
+                
+                await batch.commit();
+                console.log('✅ تم تحديث جميع الروبوتات');
+            } catch (error) {
+                console.error('❌ خطأ في تحديث الروبوتات:', error);
+            }
+        }
+        
+        // ============================================
+        // 📊 إدارة البيانات
+        // ============================================
+        async function initializeDashboard() {
+            try {
                 const statsRef = db.collection('dashboard').doc('stats');
                 const statsDoc = await statsRef.get();
                 
@@ -524,336 +548,256 @@
                         totalProfit: 15000,
                         dailyProfit: 350,
                         walletBalance: 8000,
-                        successRate: 92.5
-                    }).then(() => console.log("⚙️ تم إنشاء مستند الإحصائيات الأولية."));
+                        successRate: 92.5,
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    console.log('✅ تم إنشاء إحصائيات جديدة');
                 }
-
-                // تهيئة الروبوتات
-                const botIds = ['trading', 'ecommerce', 'affiliate', 'crypto'];
-                const batch = db.batch();
-                botIds.forEach(id => {
-                    const botRef = db.collection('bots').doc(id);
-                    batch.set(botRef, { 
-                        active: false, 
-                        profit: 0,
-                        type: id
-                    }, { merge: true }); // نستخدم merge لتحديثها إذا كانت موجودة
-                });
-                await batch.commit().then(() => console.log("⚙️ تم تهيئة مستندات الروبوتات الأولية."));
+            } catch (error) {
+                console.error('❌ خطأ في تهيئة Dashboard:', error);
+            }
+        }
+        
+        async function initializeIncomeSources() {
+            try {
+                const incomeRef = db.collection('incomeSources').doc('data');
+                const incomeDoc = await incomeRef.get();
                 
-                // تهيئة مصادر الدخل (لتظهر في الجدول)
-                const incomeSourcesRef = db.collection('incomeSources').doc('data');
-                const incomeSourcesDoc = await incomeSourcesRef.get();
-                if (!incomeSourcesDoc.exists) {
-                    await incomeSourcesRef.set({
+                if (!incomeDoc.exists) {
+                    await incomeRef.set({
                         sources: [
                             { sourceName: 'تداول الفوركس الآلي', revenue: 7500, growth: 4.2, status: 'ممتاز', icon: '📈' },
-                            { sourceName: 'مبيعات التجارة الإلكترونية', revenue: 5200, growth: 2.1, status: 'جيد', icon: '🛒' },
-                            { sourceName: 'عمولات التسويق بالعمولة', revenue: 2300, growth: 1.5, status: 'ممتاز', icon: '👥' },
-                            { sourceName: 'تعدين العملات الرقمية', revenue: 500, growth: 0.9, status: 'متوسط', icon: '₿' }
-                        ]
+                            { sourceName: 'مبيعات التجارة الإلكترونية', revenue: 6200, growth: 3.8, status: 'جيد', icon: '🛒' },
+                            { sourceName: 'عمولات التسويق بالعمولة', revenue: 4300, growth: 5.1, status: 'ممتاز', icon: '🤝' },
+                            { sourceName: 'تعدين العملات الرقمية', revenue: 8900, growth: 2.4, status: 'متوسط', icon: '⛏️' }
+                        ],
+                        lastUpdated: firebase.firestore.FieldValue.serverTimestamp()
                     });
+                    console.log('✅ تم إنشاء مصادر الدخل');
                 }
+            } catch (error) {
+                console.error('❌ خطأ في تهيئة مصادر الدخل:', error);
             }
-
-
-            // الإحصائيات العامة (Dashboard Stats) - لحظي
-            listenToDashboardStats() {
-                db.collection('dashboard').doc('stats').onSnapshot(doc => {
-                    if (doc.exists) {
-                        const data = doc.data();
-                        this.totalProfit = data.totalProfit || 0;
-                        this.dailyProfit = data.dailyProfit || 0;
-                        this.successRate = data.successRate || 0;
-                        this.walletBalance = data.walletBalance || 0;
-                        this.updateUI();  
-                        // console.log("🌟 تم تحديث الإحصائيات العامة لحظياً من Firebase.");
-                    }
-                }, error => {
-                    console.error("خطأ في قراءة إحصائيات لوحة التحكم:", error);
-                });
-            }
-
-            // الروبوتات - لحظي
-            listenToBots() {
-                db.collection('bots').onSnapshot(snapshot => {
-                    this.bots = {};  
-                    snapshot.docs.forEach(doc => {
-                        const botId = doc.id;
-                        const data = doc.data();
-                        this.bots[botId] = {  
-                            active: data.active,  
-                            profit: data.profit || 0,  
-                            type: data.type || "غير معروف"  
-                        };
-                        this.updateBotUI(botId);
-                    });
-                    this.activeBots = Object.values(this.bots).filter(b => b.active).length;
-                    this.updateUI();  
-                    // console.log("🤖 تم تحديث حالة الروبوتات لحظياً من Firebase.");
-                }, error => {
-                    console.error("خطأ في قراءة الروبوتات:", error);
-                });
-            }
+        }
+        
+        // ============================================
+        // 🔄 الاستماع الفوري للتحديثات
+        // ============================================
+        function startRealTimeListeners() {
+            // الاستماع لإحصائيات Dashboard
+            db.collection('dashboard').doc('stats').onSnapshot((doc) => {
+                if (doc.exists) {
+                    const data = doc.data();
+                    updateDashboardUI(data);
+                }
+            }, (error) => {
+                console.error('❌ خطأ في استماع Dashboard:', error);
+            });
             
-            // مصادر الدخل - لحظي
-            listenToIncomeSources() {
-                // نغير من مجموعة إلى مستند يحتوي على مصفوفة لتسهيل التهيئة
-                db.collection('incomeSources').doc('data').onSnapshot(doc => {
-                    if (doc.exists) {
-                        this.incomeSources = doc.data().sources || [];
-                        this.renderIncomeSources();
-                        // console.log("💰 تم تحديث مصادر الدخل لحظياً من Firebase.");
-                    }
-                }, error => {
-                    console.error("خطأ في قراءة مصادر الدخل:", error);
-                });
-            }
-
-            // المعاملات الحية - لحظي
-            listenToTransactions() {
-                db.collection('transactions').orderBy('timestamp', 'desc').limit(10).onSnapshot(snapshot => {
-                    const transactionsContainer = document.getElementById('live-transactions');
-                    transactionsContainer.innerHTML = '';  
+            // الاستماع للروبوتات
+            db.collection('bots').onSnapshot((snapshot) => {
+                let activeCount = 0;
+                
+                snapshot.forEach((doc) => {
+                    const botId = doc.id;
+                    const data = doc.data();
                     
-                    snapshot.docs.forEach(doc => {
+                    updateBotUI(botId, data);
+                    if (data.active) activeCount++;
+                });
+                
+                document.getElementById('active-bots').textContent = `${activeCount}/4`;
+            }, (error) => {
+                console.error('❌ خطأ في استماع الروبوتات:', error);
+            });
+            
+            // الاستماع لمصادر الدخل
+            db.collection('incomeSources').doc('data').onSnapshot((doc) => {
+                if (doc.exists) {
+                    const sources = doc.data().sources || [];
+                    renderIncomeSources(sources);
+                }
+            }, (error) => {
+                console.error('❌ خطأ في استماع مصادر الدخل:', error);
+            });
+            
+            // الاستماع للمعاملات
+            db.collection('transactions')
+                .orderBy('timestamp', 'desc')
+                .limit(10)
+                .onSnapshot((snapshot) => {
+                    const container = document.getElementById('live-transactions');
+                    container.innerHTML = '';
+                    
+                    snapshot.forEach((doc) => {
                         const transaction = doc.data();
-                        this.addTransactionToUI(transaction.type, transaction.amount, transaction.category, transaction.timestamp);
+                        renderTransaction(transaction);
                     });
-                    // console.log("⚡ تم تحديث المعاملات الحية لحظياً من Firebase.");
-                }, error => {
-                    console.error("خطأ في قراءة المعاملات:", error);
+                }, (error) => {
+                    console.error('❌ خطأ في استماع المعاملات:', error);
                 });
+        }
+        
+        // ============================================
+        // 🎨 تحديث واجهة المستخدم
+        // ============================================
+        function updateDashboardUI(data) {
+            if (data.totalProfit !== undefined) {
+                document.getElementById('total-profit').textContent = `$${data.totalProfit.toLocaleString()}`;
             }
-
-            // ==========================================================
-            // دوال التحكم (تحديث Firebase)
-            // ==========================================================
-
-            async toggleBot(botId) {
-                if (!db || !this.bots[botId] || !currentUser) {
-                     alert("يجب تسجيل الدخول لتشغيل/إيقاف الروبوتات.");
-                     return;
-                }
-
-                const newStatus = !this.bots[botId].active;
-                
-                await db.collection('bots').doc(botId).update({
-                    active: newStatus
-                }).then(() => {
-                    console.log(`✅ تم تحديث حالة الروبوت ${botId} إلى ${newStatus ? 'نشط' : 'متوقف'}.`);
-                }).catch(error => {
-                    console.error(`❌ فشل تحديث حالة الروبوت ${botId}:`, error);
-                    alert('فشل في تحديث حالة الروبوت (تأكد من قواعد الأمان).');
-                });
+            if (data.dailyProfit !== undefined) {
+                document.getElementById('daily-profit').textContent = `$${data.dailyProfit.toLocaleString()}`;
             }
-
-            async toggleAllBots(forceStatus = null) {
-                if (!db || !currentUser) {
-                    alert("يجب تسجيل الدخول لتشغيل/إيقاف الروبوتات.");
-                    return;
-                }
-                
-                const allActive = Object.values(this.bots).every(bot => bot.active);
-                const targetStatus = forceStatus !== null ? forceStatus : !allActive;
-                
-                const batch = db.batch();
-                Object.keys(this.bots).forEach(botId => {
-                    const botRef = db.collection('bots').doc(botId);
-                    batch.update(botRef, { active: targetStatus });
-                });
-                
-                await batch.commit().then(() => {
-                    console.log(`✅ تم تغيير حالة جميع الروبوتات إلى ${targetStatus ? 'نشط' : 'متوقف'}.`);
-                }).catch(error => {
-                    console.error("فشل تحديث حالة جميع الروبوتات:", error);
-                });
+            if (data.walletBalance !== undefined) {
+                document.getElementById('wallet-balance').textContent = `$${data.walletBalance.toLocaleString()}`;
             }
-
-            // ==========================================================
-            // دوال العرض (UI Rendering)
-            // ==========================================================
-            updateUI() {
-                document.getElementById('total-profit').textContent = `$${this.totalProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-                document.getElementById('daily-profit').textContent = `$${this.dailyProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-                document.getElementById('wallet-balance').textContent = `$${this.walletBalance.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-                document.getElementById('active-bots').textContent = `${this.activeBots}/${Object.keys(this.bots).length || 4}`; // تحديث عدد الروبوتات
-                document.getElementById('success-rate').textContent = `${this.successRate.toFixed(1)}%`;
-                
-                // حساب متاح للسحب ومستثمر
-                const available = Math.floor(this.walletBalance * 0.7);
-                const invested = Math.floor(this.walletBalance * 0.3);
-                document.getElementById('available-withdraw').textContent = `$${available.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-                document.getElementById('invested-balance').textContent = `$${invested.toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+            if (data.successRate !== undefined) {
+                document.getElementById('success-rate').textContent = `${data.successRate.toFixed(1)}%`;
             }
-
-            updateBotUI(botId) {
-                const botElement = document.getElementById(`bot-${botId}`);
-                if (!botElement) return;
-
-                const botData = this.bots[botId];
-                const button = botElement.querySelector('.bot-toggle-btn');
-                const statusIndicator = botElement.querySelector('.status-indicator');
-                const profitSpan = document.getElementById(`${botId}-profit`);  
-
-                if (profitSpan) {
-                    profitSpan.textContent = `+$${(botData.profit || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
-                }
-
-                if (botData.active) {
-                    botElement.classList.add('robot-active');
-                    statusIndicator.textContent = '🟢 نشط';
-                    statusIndicator.classList.remove('text-gray-400');
-                    statusIndicator.classList.add('text-green-400');
-                    button.textContent = 'إيقاف';
-                    button.className = 'text-sm bg-red-500 hover:bg-red-600 px-3 py-1 rounded bot-toggle-btn';
-                } else {
-                    botElement.classList.remove('robot-active');
-                    statusIndicator.textContent = '🔴 متوقف';
-                    statusIndicator.classList.remove('text-green-400');
-                    statusIndicator.classList.add('text-gray-400');
-                    button.textContent = 'تشغيل';
-                    button.className = 'text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn';
-                }
+        }
+        
+        function updateBotUI(botId, data) {
+            const botElement = document.getElementById(`bot-${botId}`);
+            if (!botElement) return;
+            
+            const button = botElement.querySelector('.bot-toggle-btn');
+            const status = botElement.querySelector('.status-indicator');
+            const profit = document.getElementById(`${botId}-profit`);
+            
+            if (profit && data.profit !== undefined) {
+                profit.textContent = `+$${data.profit.toLocaleString()}`;
             }
             
-            renderIncomeSources() {
-                const body = document.getElementById('income-sources-body');
-                body.innerHTML = '';
-                
-                this.incomeSources.forEach(source => {
-                    const statusClass = source.status === 'ممتاز' ? 'bg-green-900/50 text-green-300' : 
-                                            source.status === 'جيد' ? 'bg-blue-900/50 text-blue-300' :
-                                            'bg-yellow-900/50 text-yellow-300';
-
-                    const row = `
-                        <tr class="border-b border-gray-700/50">
-                            <td class="p-3">${source.icon} ${source.sourceName}</td>
-                            <td class="p-3 font-bold">$${source.revenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</td>
-                            <td class="p-3 ${source.growth > 0 ? 'text-green-400' : 'text-red-400'}">${source.growth > 0 ? '+' : ''}${source.growth}%</td>
-                            <td class="p-3"><span class="${statusClass} px-2 py-1 rounded text-sm">${source.status}</span></td>
-                        </tr>
-                    `;
-                    body.innerHTML += row;
-                });
+            if (data.active) {
+                botElement.classList.add('robot-active');
+                status.textContent = '🟢 نشط';
+                status.className = 'text-sm text-green-400 status-indicator';
+                button.textContent = 'إيقاف';
+                button.className = 'text-sm bg-red-500 hover:bg-red-600 px-3 py-1 rounded bot-toggle-btn';
+            } else {
+                botElement.classList.remove('robot-active');
+                status.textContent = '🔴 متوقف';
+                status.className = 'text-sm text-gray-400 status-indicator';
+                button.textContent = 'تشغيل';
+                button.className = 'text-sm bg-green-500 hover:bg-green-600 px-3 py-1 rounded bot-toggle-btn';
             }
-
-            addTransactionToUI(type, amount, category, timestamp) {
-                const transactionsContainer = document.getElementById('live-transactions');
-                const div = document.createElement('div');
-                const isPositive = amount > 0;
+        }
+        
+        function renderIncomeSources(sources) {
+            const container = document.getElementById('income-sources-body');
+            container.innerHTML = '';
+            
+            sources.forEach((source) => {
+                const row = document.createElement('tr');
+                row.className = 'border-b border-gray-700/50';
                 
-                let timeText = "الآن";
-                if (timestamp && timestamp.toDate) {
-                    const minutes = Math.floor((new Date().getTime() - timestamp.toDate().getTime()) / 60000);
-                    if (minutes > 0) timeText = `منذ ${minutes} دقيقة${minutes > 10 ? '' : ''}`;
-                }
-
-                div.className = 'p-4 bg-gray-800/30 rounded-lg flex justify-between items-center';
-                div.innerHTML = `
-                    <div>
-                        <div class="font-bold">${type}</div>
-                        <div class="text-sm text-gray-400">${category} • ${timeText}</div>
-                    </div>
-                    <div class="${isPositive ? 'text-green-400' : 'text-red-400'} font-bold text-xl">
-                        ${isPositive ? '+' : ''}$${Math.abs(amount).toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                    </div>
+                const statusClass = {
+                    'ممتاز': 'bg-green-900/50 text-green-300',
+                    'جيد': 'bg-blue-900/50 text-blue-300',
+                    'متوسط': 'bg-yellow-900/50 text-yellow-300'
+                }[source.status] || 'bg-gray-900/50 text-gray-300';
+                
+                row.innerHTML = `
+                    <td class="p-3">${source.icon} ${source.sourceName}</td>
+                    <td class="p-3 font-bold">$${source.revenue.toLocaleString()}</td>
+                    <td class="p-3 ${source.growth > 0 ? 'text-green-400' : 'text-red-400'}">
+                        ${source.growth > 0 ? '+' : ''}${source.growth}%
+                    </td>
+                    <td class="p-3">
+                        <span class="${statusClass} px-2 py-1 rounded text-sm">${source.status}</span>
+                    </td>
                 `;
                 
-                // Add the new transaction to the top
-                transactionsContainer.insertBefore(div, transactionsContainer.firstChild);
-                
-                // Keep only the last 10 transactions
-                while (transactionsContainer.children.length > 10) {
-                    transactionsContainer.removeChild(transactionsContainer.lastChild);
-                }
-            }
-        }
-        
-        // ********** الدوال العامة المعرفة على مستوى النافذة **********
-        window.globalTradeEmpire = new GlobalTradeEmpire();
-
-        function loginUser() {
-            window.globalTradeEmpire.loginUser();
-        }
-        function signupUser() {
-            window.globalTradeEmpire.signupUser();
-        }
-        function logoutUser() {
-            window.globalTradeEmpire.logoutUser();
-        }
-        function toggleBot(botId) {
-            window.globalTradeEmpire.toggleBot(botId);
-        }
-        function toggleAllBots() {
-            window.globalTradeEmpire.toggleAllBots();
-        }
-        function showSubscriptionInfo() {
-            alert(`
-            💰 خطة الاشتراك الشهري: 29 USDT
-
-            طرق الدفع الدولية:
-            1. العملات الرقمية (USDT - TRC20):
-                - العنوان: TUSDTADDRESS1234567890
-                - الشبكة: Tron (TRC20)
-
-            طرق الدفع المحلية (العراق):
-            2. زين كاش: (رقم هاتفك هنا)
-
-            بعد الدفع، راسلنا عبر البريد: support@empire.com لتفعيل حسابك يدوياً خلال 10 دقائق.
-            `);
-        }
-        
-        function withdrawMoney() {
-            alert('🏦 تمت عملية سحب الأرباح بنجاح (وظيفة محاكاة). ستصل الأموال إلى محفظتك خلال 24 ساعة.');
-        }
-        
-        function reinvestMoney() {
-            alert('🔄 تمت إعادة استثمار الأرباح بنجاح (وظيفة محاكاة). ستبدأ الروبوتات بالعمل برأس مال أكبر.');
-        }
-        
-        function showTransactions() {
-            alert('📋 يمكنك رؤية آخر 10 معاملات في قسم "المعاملات الحية" أسفل لوحة التحكم.');
-        }
-        
-        function checkAuthState() {
-            // الاستماع لحالة المصادقة
-            auth.onAuthStateChanged(user => {
-                const authScreen = document.getElementById('auth-screen');
-                const dashboard = document.getElementById('main-dashboard-content');
-                const nav = document.getElementById('main-nav');
-                const userDisplay = document.getElementById('user-display');
-                
-                if (user) {
-                    // المستخدم مسجل الدخول
-                    currentUser = user;
-                    authScreen.style.display = 'none';
-                    dashboard.style.display = 'block';
-                    nav.style.display = 'flex';
-                    userDisplay.textContent = `مرحباً، ${user.email}`;
-                    window.globalTradeEmpire.startDashboardListeners(); // بدء جلب البيانات وجني الأرباح
-                    console.log(`👤 المستخدم ${user.email} مسجل الدخول.`);
-                } else {
-                    // المستخدم غير مسجل الدخول
-                    currentUser = null;
-                    authScreen.style.display = 'flex';
-                    dashboard.style.display = 'none';
-                    nav.style.display = 'none';
-                    // إيقاف التحديث التلقائي إذا لم يكن هناك مستخدم
-                    if (window.globalTradeEmpire.autoUpdateInterval) {
-                        clearInterval(window.globalTradeEmpire.autoUpdateInterval);
-                        window.globalTradeEmpire.autoUpdateInterval = null;
-                    }
-                    console.log("🔒 لا يوجد مستخدم مسجل الدخول.");
-                }
+                container.appendChild(row);
             });
         }
         
-        // Initialize Application
-        window.onload = function() {
-            checkAuthState(); // فحص حالة المصادقة عند تحميل الصفحة
-        };
-    </script>
+        function renderTransaction(transaction) {
+            const container = document.getElementById('live-transactions');
+            const div = document.createElement('div');
+            div.className = 'p-4 bg-gray-800/30 rounded-lg flex justify-between items-center fade-in';
+            
+            const isPositive = transaction.amount > 0;
+            const timeText = transaction.timestamp ? 'منذ قليل' : 'الآن';
+            
+            div.innerHTML = `
+                <div>
+                    <div class="font-bold">${transaction.type || 'معاملة'}</div>
+                    <div class="text-sm text-gray-400">${transaction.category || 'عام'} • ${timeText}</div>
+                </div>
+                <div class="${isPositive ? 'text-green-400' : 'text-red-400'} font-bold text-xl">
+                    ${isPositive ? '+' : '-'}$${Math.abs(transaction.amount || 0).toLocaleString()}
+                </div>
+            `;
+            
+            container.prepend(div);
+            
+            // حفظ آخر 10 معاملات فقط
+            if (container.children.length > 10) {
+                container.removeChild(container.lastChild);
+            }
+        }
+        
+        // ============================================
+        // ⚡ التحديث التلقائي
+        // ============================================
+        function startAutoUpdates() {
+            setInterval(async () => {
+                if (!currentUser) return;
+                
+                try {
+                    const profitIncrease = Math.floor(Math.random() * 50) + 10;
+                    const statsRef = db.collection('dashboard').doc('stats');
+                    
+                    await statsRef.update({
+                        totalProfit: firebase.firestore.FieldValue.increment(profitIncrease),
+                        dailyProfit: firebase.firestore.FieldValue.increment(profitIncrease),
+                        walletBalance: firebase.firestore.FieldValue.increment(profitIncrease)
+                    });
+                    
+                    // إضافة معاملة جديدة
+                    const types = ['تداول آلي', 'عمولة تجارية', 'ربح استثماري', 'بيع منتج'];
+                    await db.collection('transactions').add({
+                        type: types[Math.floor(Math.random() * types.length)],
+                        amount: profitIncrease,
+                        category: 'ربح آلي',
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    
+                } catch (error) {
+                    console.error('❌ خطأ في التحديث التلقائي:', error);
+                }
+            }, 30000); // كل 30 ثانية
+        }
+        
+        // ============================================
+        // 💰 وظائف المحفظة
+        // ============================================
+        function withdrawMoney() {
+            alert('🏦 تم طلب سحب الأرباح بنجاح.\nسيتم تحويل المبلغ خلال 24-48 ساعة.');
+        }
+        
+        function reinvestMoney() {
+            alert('🔄 تمت إعادة استثمار الأرباح.\nستبدأ الروبوتات بالعمل برأس مال أكبر.');
+        }
+        
+        function showTransactions() {
+            alert('📋 آخر 10 معاملات تظهر في قسم "المعاملات الحية" أسفل الصفحة.');
+        }
+        
+        function showSubscriptionInfo() {
+            alert(`💰 خطة الاشتراك الشهري: 29 USDT
 
+طرق الدفع:
+1. USDT (TRC20):
+   العنوان: TUSDTADDRESS1234567890
+
+2. زين كاش العراق:
+   رقم: 0770XXXXXXX
+
+بعد الدفع، راسلنا عبر البريد:
+support@global-trade-empire.com`);
+        }
+    </script>
 </body>
 </html>
